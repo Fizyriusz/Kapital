@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kapitał — interaktywna akademia inwestowania (rynek polski)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,700;1,6..96,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENY ============
+   Kierunek: druk zabezpieczony — banknot, staloryt, giloszowanie.
+   Kolory zdjęte z polskich banknotów: zieleń 100 zł, ochra 200 zł,
+   fiolet 50 zł, karmin 10 zł. Papier lekko chłodny, nie kremowy.      */
+:root{
+  --paper:      #E6E9E1;
+  --paper-2:    #EFF1EB;
+  --paper-3:    #DCE0D6;
+  --ink:        #15201B;
+  --ink-2:      #3C4A43;
+  --ink-3:      #6C7A72;
+  --zloty:      #1C6A55;   /* zieleń — wzrost, kapitał */
+  --zloty-lt:   #2E9377;
+  --ochra:      #B37421;   /* ochra — obligacje, bank */
+  --fiolet:     #654A87;   /* fiolet — podatki, państwo */
+  --karmin:     #A03442;   /* karmin — koszty, ryzyko */
+  --line:       #C2C7BB;
+  --line-2:     #AAB2A4;
+
+  --f-disp: "Bodoni Moda", "Didot", Georgia, serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --sp: clamp(1rem, 3vw, 2rem);
+  --maxw: 1180px;
+  --r: 3px;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth; -webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important}
+}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--f-body); font-size:16.5px; line-height:1.62;
+  font-weight:400; letter-spacing:.002em;
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(28,106,85,.055), transparent 42%),
+    radial-gradient(circle at 88% 72%, rgba(179,116,33,.05), transparent 46%);
+  background-attachment:fixed;
+}
+img,svg{max-width:100%}
+h1,h2,h3,h4{font-family:var(--f-disp); font-weight:500; line-height:1.08; margin:0; letter-spacing:-.01em}
+p{margin:0 0 .9em}
+a{color:var(--zloty); text-underline-offset:3px; text-decoration-thickness:1px}
+:focus-visible{outline:2.5px solid var(--fiolet); outline-offset:3px}
+::selection{background:rgba(28,106,85,.22)}
+
+/* ---- typografia pomocnicza ---- */
+.eyebrow{
+  font-family:var(--f-mono); font-size:.66rem; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--ink-3); font-weight:500;
+}
+.num{font-family:var(--f-mono); font-variant-numeric:tabular-nums; font-feature-settings:"tnum"}
+.lead{font-size:1.08rem; color:var(--ink-2); max-width:62ch}
+.small{font-size:.85rem; color:var(--ink-3)}
+.hl{background:linear-gradient(transparent 62%, rgba(179,116,33,.32) 62%)}
+
+/* ============ SZKIELET ============ */
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 var(--sp)}
+section{padding:clamp(3.5rem,7vw,6rem) 0; position:relative}
+.sec-head{display:flex; align-items:flex-end; gap:1.2rem; flex-wrap:wrap;
+  border-bottom:1px solid var(--line); padding-bottom:.9rem; margin-bottom:2.2rem}
+.sec-head h2{font-size:clamp(1.9rem,4.4vw,3rem); flex:1 1 auto}
+.sec-head .eyebrow{padding-bottom:.5rem}
+
+/* ============ NAWIGACJA ============ */
+.topbar{
+  position:sticky; top:0; z-index:60; background:rgba(230,233,225,.9);
+  backdrop-filter:blur(10px) saturate(1.2); border-bottom:1px solid var(--line);
+}
+.topbar .wrap{display:flex; align-items:center; gap:1rem; height:56px}
+.brand{font-family:var(--f-disp); font-size:1.22rem; font-weight:700; letter-spacing:-.02em; margin-right:auto; white-space:nowrap}
+.brand span{color:var(--zloty)}
+.navlinks{display:flex; gap:.15rem; overflow-x:auto; scrollbar-width:none}
+.navlinks::-webkit-scrollbar{display:none}
+.navlinks a{
+  font-family:var(--f-mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-2); text-decoration:none; padding:.42rem .6rem; border-radius:var(--r); white-space:nowrap;
+}
+.navlinks a:hover{background:rgba(21,32,27,.07); color:var(--ink)}
+.navlinks a.on{color:var(--zloty); background:rgba(28,106,85,.1)}
+
+/* ============ HERO — GILOSZ ============ */
+.hero{padding:clamp(2.5rem,6vw,4.5rem) 0 clamp(3rem,6vw,5rem); overflow:hidden}
+.hero-grid{display:grid; grid-template-columns:1.15fr .85fr; gap:clamp(1.5rem,4vw,3.5rem); align-items:center}
+.hero h1{font-size:clamp(2.6rem,7.2vw,5.2rem); line-height:.98; letter-spacing:-.028em}
+.hero h1 em{font-style:italic; color:var(--zloty)}
+.hero-rule{width:64px; height:2px; background:var(--ink); margin:1.4rem 0 1.2rem}
+.hero .lead{font-size:clamp(1rem,1.9vw,1.16rem)}
+.hero-cta{display:flex; gap:.6rem; flex-wrap:wrap; margin-top:1.6rem}
+.guilloche{width:100%; height:auto; display:block}
+.guilloche path{fill:none; stroke:var(--zloty); stroke-width:.55; opacity:.5}
+.guilloche .g2 path{stroke:var(--ochra); opacity:.34}
+.guilloche .core{fill:var(--paper-2); stroke:var(--ink); stroke-width:1.2; opacity:1}
+.guilloche text{font-family:var(--f-disp); font-weight:700; fill:var(--ink)}
+@media (prefers-reduced-motion: no-preference){
+  .guilloche path{stroke-dasharray:2400; stroke-dashoffset:2400; animation:draw 2.6s cubic-bezier(.2,.7,.3,1) forwards}
+  .guilloche .core{animation:none; stroke-dashoffset:0}
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+.spin{transform-origin:50% 50%}
+@media (prefers-reduced-motion: no-preference){ .spin{animation:rot 90s linear infinite} }
+@keyframes rot{to{transform:rotate(360deg)}}
+
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line);
+  border:1px solid var(--line); margin-top:clamp(2rem,5vw,3.2rem)}
+.stat{background:var(--paper-2); padding:1rem 1.1rem}
+.stat b{display:block; font-family:var(--f-mono); font-size:1.28rem; font-weight:600; letter-spacing:-.02em}
+.stat small{display:block; font-size:.73rem; color:var(--ink-3); line-height:1.35; margin-top:.25rem}
+
+/* ============ PRZYCISKI / POLA ============ */
+.btn{
+  font-family:var(--f-mono); font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; font-weight:500;
+  padding:.72rem 1.15rem; border:1px solid var(--ink); background:var(--ink); color:var(--paper-2);
+  border-radius:var(--r); cursor:pointer; text-decoration:none; display:inline-block; transition:transform .12s, background .16s;
+}
+.btn:hover{background:var(--zloty); border-color:var(--zloty); transform:translateY(-1px)}
+.btn.ghost{background:transparent; color:var(--ink)}
+.btn.ghost:hover{background:var(--ink); color:var(--paper-2)}
+.btn.sm{padding:.42rem .7rem; font-size:.68rem}
+
+label.fld{display:block; margin-bottom:.85rem}
+label.fld > span{display:flex; justify-content:space-between; align-items:baseline; gap:.5rem;
+  font-family:var(--f-mono); font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); margin-bottom:.3rem}
+label.fld > span b{font-size:.86rem; color:var(--zloty); letter-spacing:0; text-transform:none; font-weight:600}
+input[type=number], input[type=text], select{
+  width:100%; font-family:var(--f-mono); font-size:.95rem; padding:.55rem .65rem;
+  border:1px solid var(--line-2); background:var(--paper-2); color:var(--ink); border-radius:var(--r);
+}
+input[type=number]:focus, select:focus{border-color:var(--zloty)}
+input[type=range]{width:100%; accent-color:var(--zloty); margin:.3rem 0 0}
+.row2{display:grid; grid-template-columns:1fr 1fr; gap:0 1rem}
+.chips{display:flex; gap:.35rem; flex-wrap:wrap}
+.chip{font-family:var(--f-mono); font-size:.72rem; padding:.38rem .6rem; border:1px solid var(--line-2);
+  background:var(--paper-2); border-radius:var(--r); cursor:pointer; color:var(--ink-2)}
+.chip[aria-pressed=true]{background:var(--ink); color:var(--paper-2); border-color:var(--ink)}
+
+/* ============ KARTY ============ */
+.card{background:var(--paper-2); border:1px solid var(--line); padding:clamp(1.1rem,2.5vw,1.6rem); border-radius:var(--r)}
+.card h3{font-size:1.35rem; margin-bottom:.5rem}
+.grid3{display:grid; grid-template-columns:repeat(auto-fit,minmax(268px,1fr)); gap:1rem}
+.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1rem}
+
+/* ============ MAPA MYŚLI ============ */
+.map-shell{position:relative; border:1px solid var(--line); background:var(--paper-2); border-radius:var(--r); overflow:hidden}
+.map-shell::before{content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:linear-gradient(rgba(21,32,27,.045) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(21,32,27,.045) 1px, transparent 1px);
+  background-size:26px 26px}
+#map{display:block; width:100%; height:min(74vh,660px); touch-action:none; cursor:grab; position:relative}
+#map.drag{cursor:grabbing}
+#map .link{fill:none; stroke:var(--line-2); stroke-width:1.4}
+#map .link.hot{stroke:var(--zloty); stroke-width:2.2}
+#map .node{cursor:pointer}
+#map .node rect, #map .node circle{transition:transform .15s}
+#map .node .bg{fill:var(--paper-2); stroke:var(--ink); stroke-width:1.3}
+#map .node text{font-family:var(--f-body); font-size:12.5px; fill:var(--ink); dominant-baseline:middle; pointer-events:none}
+#map .node .sub{font-family:var(--f-mono); font-size:9px; fill:var(--ink-3); letter-spacing:.06em}
+#map .node:hover .bg{fill:var(--paper-3)}
+#map .node.sel .bg{stroke-width:2.4}
+#map .root .bg{fill:var(--ink)}
+#map .root text{fill:var(--paper-2); font-family:var(--f-disp); font-size:19px; font-weight:700}
+.map-tools{position:absolute; right:10px; bottom:10px; display:flex; gap:.3rem; z-index:5}
+.map-hint{position:absolute; left:12px; top:10px; z-index:5; font-family:var(--f-mono); font-size:.66rem;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); background:rgba(239,241,235,.85); padding:.25rem .5rem}
+
+.drawer{
+  position:fixed; right:0; top:0; height:100dvh; width:min(430px,100%); z-index:80;
+  background:var(--paper-2); border-left:1px solid var(--line-2); box-shadow:-18px 0 44px rgba(21,32,27,.16);
+  transform:translateX(102%); transition:transform .3s cubic-bezier(.3,.8,.3,1); display:flex; flex-direction:column;
+}
+.drawer.open{transform:none}
+.drawer header{padding:1.2rem 1.3rem .9rem; border-bottom:1px solid var(--line); position:relative}
+.drawer header h3{font-size:1.5rem; padding-right:2rem}
+.drawer .body{padding:1.2rem 1.3rem 3rem; overflow:auto; flex:1}
+.drawer .body h4{font-family:var(--f-mono); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-3); margin:1.3rem 0 .45rem; font-weight:500}
+.drawer .body ul{margin:.2rem 0 .9rem; padding-left:1.1rem}
+.drawer .body li{margin-bottom:.35rem}
+.x{position:absolute; right:.9rem; top:1.1rem; background:none; border:1px solid var(--line-2); width:30px; height:30px;
+  border-radius:50%; cursor:pointer; color:var(--ink); font-size:1rem; line-height:1}
+.x:hover{background:var(--ink); color:var(--paper-2)}
+.tag{display:inline-block; font-family:var(--f-mono); font-size:.64rem; letter-spacing:.12em; text-transform:uppercase;
+  padding:.2rem .45rem; border:1px solid currentColor; border-radius:var(--r); margin-bottom:.6rem}
+
+/* ============ KALKULATORY ============ */
+.tabs{display:flex; gap:.3rem; flex-wrap:wrap; margin-bottom:1.4rem; border-bottom:1px solid var(--line); padding-bottom:.9rem}
+.tab{font-family:var(--f-mono); font-size:.72rem; letter-spacing:.07em; text-transform:uppercase;
+  padding:.5rem .75rem; border:1px solid var(--line-2); background:var(--paper-2); cursor:pointer; border-radius:var(--r); color:var(--ink-2)}
+.tab[aria-selected=true]{background:var(--ink); color:var(--paper-2); border-color:var(--ink)}
+.calc{display:none}
+.calc.on{display:block; animation:fade .3s ease}
+@keyframes fade{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+.calc-grid{display:grid; grid-template-columns:minmax(250px,320px) 1fr; gap:clamp(1rem,3vw,2rem); align-items:start}
+.panel{background:var(--paper-2); border:1px solid var(--line); padding:1.2rem; border-radius:var(--r)}
+.out{background:var(--paper-2); border:1px solid var(--line); border-radius:var(--r); padding:1.2rem}
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin-bottom:1.2rem}
+.kpi{background:var(--paper-2); padding:.85rem .9rem}
+.kpi b{display:block; font-family:var(--f-mono); font-size:1.2rem; font-weight:600; letter-spacing:-.02em; line-height:1.2}
+.kpi small{display:block; font-size:.68rem; font-family:var(--f-mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); margin-top:.2rem}
+.kpi.g b{color:var(--zloty)} .kpi.r b{color:var(--karmin)} .kpi.v b{color:var(--fiolet)} .kpi.o b{color:var(--ochra)}
+.chart{width:100%; height:auto; display:block}
+.chart .grid{stroke:var(--line); stroke-width:.7}
+.chart .axis{fill:var(--ink-3); font-family:var(--f-mono); font-size:9.5px}
+.legend{display:flex; gap:1rem; flex-wrap:wrap; font-family:var(--f-mono); font-size:.72rem; color:var(--ink-2); margin-top:.6rem}
+.legend i{display:inline-block; width:12px; height:3px; margin-right:.35rem; vertical-align:middle}
+.note{font-size:.82rem; color:var(--ink-3); border-left:2px solid var(--line-2); padding-left:.75rem; margin-top:1rem}
+
+/* ============ TABELE ============ */
+.tablewrap{overflow-x:auto; border:1px solid var(--line); background:var(--paper-2); border-radius:var(--r)}
+table{border-collapse:collapse; width:100%; min-width:640px; font-size:.9rem}
+th,td{text-align:left; padding:.7rem .8rem; border-bottom:1px solid var(--line); vertical-align:top}
+th{font-family:var(--f-mono); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); font-weight:500; background:var(--paper-3)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(28,106,85,.045)}
+td .num{font-weight:500}
+
+/* ============ POKROWCE ============ */
+.sleeve{position:relative; overflow:hidden; border:1px solid var(--line); background:var(--paper-2); padding:1.4rem; border-radius:var(--r)}
+.sleeve::after{content:""; position:absolute; right:-40px; top:-40px; width:150px; height:150px; border-radius:50%;
+  border:22px solid currentColor; opacity:.07}
+.sleeve.ike{color:var(--zloty)} .sleeve.ikze{color:var(--fiolet)} .sleeve.oki{color:var(--ochra)}
+.sleeve h3{color:var(--ink); font-size:1.6rem}
+.sleeve .big{font-family:var(--f-mono); font-size:1.5rem; font-weight:600; color:currentColor; letter-spacing:-.02em}
+.sleeve ul{padding-left:1.05rem; margin:.6rem 0 0; font-size:.92rem}
+.sleeve li{margin-bottom:.3rem}
+.sleeve li.no::marker{color:var(--karmin)}
+
+/* ============ QUIZ ============ */
+.quiz-card{background:var(--paper-2); border:1px solid var(--line); border-radius:var(--r); padding:clamp(1.2rem,3vw,2rem)}
+.qbar{height:4px; background:var(--paper-3); margin-bottom:1.4rem}
+.qbar i{display:block; height:100%; background:var(--zloty); width:0; transition:width .35s}
+.qopts{display:grid; gap:.5rem; margin-top:1rem}
+.qopt{text-align:left; font-family:var(--f-body); font-size:.95rem; padding:.75rem .9rem; border:1px solid var(--line-2);
+  background:var(--paper); border-radius:var(--r); cursor:pointer; transition:border-color .15s, background .15s}
+.qopt:hover:not(:disabled){border-color:var(--ink)}
+.qopt.good{border-color:var(--zloty); background:rgba(28,106,85,.12)}
+.qopt.bad{border-color:var(--karmin); background:rgba(160,52,66,.1)}
+.qexp{margin-top:1rem; font-size:.9rem; color:var(--ink-2); border-left:2px solid var(--zloty); padding-left:.8rem; display:none}
+.qexp.show{display:block}
+
+/* ============ SŁOWNIK ============ */
+.gloss{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line)}
+.gterm{background:var(--paper-2); padding:.9rem 1rem}
+.gterm b{display:block; font-family:var(--f-disp); font-size:1.12rem; font-weight:700; margin-bottom:.2rem}
+.gterm p{font-size:.87rem; color:var(--ink-2); margin:0}
+.gterm.hide{display:none}
+
+/* ============ STOPKA ============ */
+footer{border-top:1px solid var(--line); padding:2.5rem 0 3.5rem; color:var(--ink-3); font-size:.86rem}
+.disclaimer{border:1px dashed var(--line-2); padding:1rem 1.2rem; border-radius:var(--r); background:rgba(160,52,66,.05); color:var(--ink-2); font-size:.88rem}
+
+/* ============ RESPONSYWNOŚĆ ============ */
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-art{order:-1; max-width:340px; margin:0 auto}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .calc-grid{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  .row2{grid-template-columns:1fr}
+  .brand{font-size:1.05rem}
+}
+@media print{.topbar,.map-tools,.drawer{display:none}}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <div class="wrap">
+    <div class="brand">Kapitał<span>.</span></div>
+    <div class="navlinks" id="nav">
+      <a href="#mapa">Mapa</a>
+      <a href="#kalkulatory">Kalkulatory</a>
+      <a href="#podatki">Podatki</a>
+      <a href="#pokrowce">IKE / IKZE / OKI</a>
+      <a href="#quiz">Sprawdź się</a>
+      <a href="#slownik">Słownik</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════ HERO ══════════════ -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Rynek polski · dane z sierpnia 2026</div>
+      <h1>Pieniądz<br>ma <em>swoją</em><br>mechanikę.</h1>
+      <div class="hero-rule"></div>
+      <p class="lead">Kurs w jednej stronie: giełda, akcje, ETF-y, obligacje skarbowe, lokaty, podatek Belki i emerytalne „pokrowce”. Każdy mechanizm ma tu kalkulator — wpisujesz swoje liczby i widzisz, kto ile zabiera.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#mapa">Otwórz mapę</a>
+        <a class="btn ghost" href="#kalkulatory">Przejdź do liczb</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <svg class="guilloche" viewBox="0 0 400 400" role="img" aria-label="Ornament giloszowy w stylu banknotu">
+        <g class="spin">
+          <g id="g1"></g>
+        </g>
+        <g class="g2" id="g2"></g>
+        <circle class="core" cx="200" cy="200" r="52"/>
+        <text x="200" y="200" text-anchor="middle" dominant-baseline="central" font-size="40">zł</text>
+      </svg>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><b class="num">19%</b><small>podatek Belki od zysków kapitałowych</small></div>
+      <div class="stat"><b class="num">3,75%</b><small>stopa referencyjna NBP (od 5 III 2026)</small></div>
+      <div class="stat"><b class="num">28 260 zł</b><small>limit wpłat na IKE w 2026 r.</small></div>
+      <div class="stat"><b class="num">100 000 €</b><small>gwarancja BFG na depozyt w jednym banku</small></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════ MAPA MYŚLI ══════════════ -->
+<section id="mapa">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">01 · Całość na jednym ekranie</div>
+      <h2>Mapa myśli</h2>
+    </div>
+    <p class="lead" style="margin-bottom:1.4rem">Sześć gałęzi, od najbezpieczniejszej do najbardziej ryzykownej. Kliknij dowolny węzeł — z boku otworzy się wyjaśnienie, typowe błędy i skrót do kalkulatora, który ten temat liczy.</p>
+    <div class="map-shell">
+      <div class="map-hint">Przeciągnij, aby przesunąć · kółko myszy = zoom</div>
+      <svg id="map"></svg>
+      <div class="map-tools">
+        <button class="btn ghost sm" id="zin" aria-label="Powiększ">+</button>
+        <button class="btn ghost sm" id="zout" aria-label="Pomniejsz">−</button>
+        <button class="btn ghost sm" id="zreset">Wyśrodkuj</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-label="Szczegóły tematu">
+  <header>
+    <div class="tag" id="dTag">temat</div>
+    <h3 id="dTitle">—</h3>
+    <button class="x" id="dClose" aria-label="Zamknij">✕</button>
+  </header>
+  <div class="body" id="dBody"></div>
+</aside>
+
+<!-- ══════════════ KALKULATORY ══════════════ -->
+<section id="kalkulatory">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">02 · Twoje liczby</div>
+      <h2>Kalkulatory</h2>
+    </div>
+
+    <div class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" data-c="c-skladany" aria-selected="true">Procent składany</button>
+      <button class="tab" role="tab" data-c="c-belka" aria-selected="false">Podatek Belki</button>
+      <button class="tab" role="tab" data-c="c-koszty" aria-selected="false">Koszty ETF</button>
+      <button class="tab" role="tab" data-c="c-oblig" aria-selected="false">Obligacje skarbowe</button>
+      <button class="tab" role="tab" data-c="c-bank" aria-selected="false">Lokata a inflacja</button>
+      <button class="tab" role="tab" data-c="c-emer" aria-selected="false">IKE vs IKZE vs zwykłe</button>
+      <button class="tab" role="tab" data-c="c-podusz" aria-selected="false">Poduszka i wypłaty</button>
+    </div>
+
+    <!-- 1. PROCENT SKŁADANY -->
+    <div class="calc on" id="c-skladany">
+      <div class="calc-grid">
+        <div class="panel">
+          <label class="fld"><span>Wpłata na start <b id="l-s0">10 000 zł</b></span>
+            <input type="range" id="s0" min="0" max="200000" step="1000" value="10000"></label>
+          <label class="fld"><span>Co miesiąc dokładam <b id="l-sm">500 zł</b></span>
+            <input type="range" id="sm" min="0" max="5000" step="50" value="500"></label>
+          <label class="fld"><span>Lat oszczędzania <b id="l-sl">25</b></span>
+            <input type="range" id="sl" min="1" max="45" step="1" value="25"></label>
+          <label class="fld"><span>Roczna stopa zwrotu <b id="l-sr">7,0%</b></span>
+            <input type="range" id="sr" min="0" max="15" step="0.25" value="7"></label>
+          <label class="fld"><span>Inflacja <b id="l-si">2,5%</b></span>
+            <input type="range" id="si" min="0" max="12" step="0.25" value="2.5"></label>
+          <div class="chips" style="margin-top:.7rem">
+            <button class="chip" data-preset="ostroznie">Ostrożnie 4%</button>
+            <button class="chip" data-preset="mieszany">Mieszany 7%</button>
+            <button class="chip" data-preset="akcje">Same akcje 9%</button>
+          </div>
+          <p class="note">Stopa zwrotu to założenie, nie obietnica. Szeroki rynek akcji dawał historycznie ok. 7–9% rocznie <em>średnio</em>, ale pojedyncze lata potrafią być −40%.</p>
+        </div>
+        <div class="out">
+          <div class="kpis">
+            <div class="kpi"><b class="num" id="k-wplaty">—</b><small>Suma wpłat</small></div>
+            <div class="kpi g"><b class="num" id="k-koniec">—</b><small>Kapitał brutto</small></div>
+            <div class="kpi r"><b class="num" id="k-belka">—</b><small>Podatek Belki</small></div>
+            <div class="kpi v"><b class="num" id="k-real">—</b><small>Netto w dzisiejszych zł</small></div>
+          </div>
+          <svg class="chart" id="ch-skladany" viewBox="0 0 720 300"></svg>
+          <div class="legend">
+            <span><i style="background:var(--ochra)"></i>Twoje wpłaty</span>
+            <span><i style="background:var(--zloty)"></i>Kapitał z odsetkami</span>
+            <span><i style="background:var(--fiolet)"></i>Siła nabywcza po inflacji</span>
+          </div>
+          <p class="note" id="n-skladany"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. BELKA -->
+    <div class="calc" id="c-belka">
+      <div class="calc-grid">
+        <div class="panel">
+          <label class="fld"><span>Zainwestowane <b id="l-b0">20 000 zł</b></span>
+            <input type="range" id="b0" min="1000" max="500000" step="1000" value="20000"></label>
+          <label class="fld"><span>Wartość dziś <b id="l-b1">26 000 zł</b></span>
+            <input type="range" id="b1" min="1000" max="900000" step="1000" value="26000"></label>
+          <label class="fld"><span>Prowizja przy kupnie i sprzedaży <b id="l-bp">0,39%</b></span>
+            <input type="range" id="bp" min="0" max="1" step="0.01" value="0.39"></label>
+          <label class="fld"><span>Strata z lat ubiegłych do odliczenia <b id="l-bs">0 zł</b></span>
+            <input type="range" id="bs" min="0" max="50000" step="500" value="0"></label>
+          <p class="note">Prowizje maklerskie <strong>obniżają podstawę opodatkowania</strong> — dolicza się je do kosztu nabycia i odejmuje od przychodu ze sprzedaży. To realna ulga, o której wiele osób zapomina.</p>
+        </div>
+        <div class="out">
+          <div class="kpis">
+            <div class="kpi"><b class="num" id="k-zysk">—</b><small>Zysk brutto</small></div>
+            <div class="kpi r"><b class="num" id="k-prow">—</b><small>Prowizje</small></div>
+            <div class="kpi v"><b class="num" id="k-pod">—</b><small>Podatek 19%</small></div>
+            <div class="kpi g"><b class="num" id="k-netto">—</b><small>Zostaje w kieszeni</small></div>
+          </div>
+          <svg class="chart" id="ch-belka" viewBox="0 0 720 230"></svg>
+          <p class="note" id="n-belka"></p>
+          <h4 style="font-family:var(--f-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:1.4rem 0 .5rem">Jak to rozliczyć</h4>
+          <p style="font-size:.9rem">Biuro maklerskie wysyła <strong>PIT-8C</strong> do końca lutego. Ty składasz <strong>PIT-38</strong> do 30 kwietnia i sam płacisz podatek — nikt go nie pobierze za Ciebie. Wyjątek: dywidendy z GPW, gdzie 19% potrąca płatnik i nic nie musisz robić.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. KOSZTY ETF -->
+    <div class="calc" id="c-koszty">
+      <div class="calc-grid">
+        <div class="panel">
+          <label class="fld"><span>Co miesiąc wpłacam <b id="l-km">1 000 zł</b></span>
+            <input type="range" id="km" min="100" max="10000" step="100" value="1000"></label>
+          <label class="fld"><span>Lat <b id="l-kl">30</b></span>
+            <input type="range" id="kl" min="5" max="45" step="1" value="30"></label>
+          <label class="fld"><span>Zwrot rynku przed kosztami <b id="l-kr">7,0%</b></span>
+            <input type="range" id="kr" min="1" max="12" step="0.25" value="7"></label>
+          <div class="row2">
+            <label class="fld"><span>TER taniego ETF <b id="l-kt1">0,20%</b></span>
+              <input type="range" id="kt1" min="0" max="1" step="0.01" value="0.2"></label>
+            <label class="fld"><span>Opłata funduszu TFI <b id="l-kt2">2,00%</b></span>
+              <input type="range" id="kt2" min="0" max="4" step="0.05" value="2"></label>
+          </div>
+          <label class="fld"><span>Prowizja od każdej wpłaty <b id="l-kp">5 zł</b></span>
+            <input type="range" id="kp" min="0" max="60" step="1" value="5"></label>
+          <p class="note">TER to opłata roczna liczona od <em>całego</em> kapitału, nie od zysku. Płacisz ją także w latach, w których rynek spada.</p>
+        </div>
+        <div class="out">
+          <div class="kpis">
+            <div class="kpi g"><b class="num" id="k-etf">—</b><small>Tani ETF po latach</small></div>
+            <div class="kpi o"><b class="num" id="k-tfi">—</b><small>Drogi fundusz</small></div>
+            <div class="kpi r"><b class="num" id="k-roznica">—</b><small>Różnica dla Ciebie</small></div>
+            <div class="kpi v"><b class="num" id="k-prowsum">—</b><small>Same prowizje od wpłat</small></div>
+          </div>
+          <svg class="chart" id="ch-koszty" viewBox="0 0 720 300"></svg>
+          <div class="legend">
+            <span><i style="background:var(--zloty)"></i>ETF z niskim TER</span>
+            <span><i style="background:var(--ochra)"></i>Fundusz z wysoką opłatą</span>
+            <span><i style="background:var(--line-2)"></i>Rynek bez żadnych kosztów</span>
+          </div>
+          <p class="note" id="n-koszty"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. OBLIGACJE -->
+    <div class="calc" id="c-oblig">
+      <div class="calc-grid">
+        <div class="panel">
+          <label class="fld"><span>Rodzaj obligacji</span>
+            <select id="ob">
+              <option value="OTS">OTS · 3 miesiące, stałe 2,00%</option>
+              <option value="ROR">ROR · 1 rok, zmienne (NBP)</option>
+              <option value="DOR">DOR · 2 lata, zmienne (NBP + 0,15)</option>
+              <option value="TOS">TOS · 3 lata, stałe 4,40%</option>
+              <option value="COI" selected>COI · 4 lata, inflacja + 1,50</option>
+              <option value="EDO">EDO · 10 lat, inflacja + 2,00</option>
+            </select></label>
+          <label class="fld"><span>Kwota (wielokrotność 100 zł) <b id="l-ok">10 000 zł</b></span>
+            <input type="range" id="okw" min="100" max="200000" step="100" value="10000"></label>
+          <label class="fld"><span>Trzymam przez <b id="l-oy">4 lata</b></span>
+            <input type="range" id="oy" min="1" max="12" step="1" value="4"></label>
+          <label class="fld"><span>Zakładana inflacja w kolejnych latach <b id="l-oi">2,5%</b></span>
+            <input type="range" id="oi" min="0" max="15" step="0.1" value="2.5"></label>
+          <label class="fld"><span>Stopa referencyjna NBP w przyszłości <b id="l-on">3,75%</b></span>
+            <input type="range" id="on" min="0" max="10" step="0.25" value="3.75"></label>
+          <div class="chips" style="margin-top:.5rem">
+            <button class="chip" id="oIke" aria-pressed="false">Kupuję w ramach IKE (bez Belki)</button>
+          </div>
+        </div>
+        <div class="out">
+          <div class="kpis">
+            <div class="kpi"><b class="num" id="k-obrutto">—</b><small>Odsetki brutto</small></div>
+            <div class="kpi r"><b class="num" id="k-okara">—</b><small>Opłata za wcześniejszy wykup</small></div>
+            <div class="kpi v"><b class="num" id="k-obelka">—</b><small>Podatek Belki</small></div>
+            <div class="kpi g"><b class="num" id="k-onetto">—</b><small>Na rękę razem z kapitałem</small></div>
+          </div>
+          <svg class="chart" id="ch-oblig" viewBox="0 0 720 250"></svg>
+          <p class="note" id="n-oblig"></p>
+          <div class="tablewrap" style="margin-top:1.2rem">
+            <table>
+              <thead><tr><th>Seria</th><th>Okres</th><th>1. okres odsetkowy</th><th>Potem</th><th>Odsetki</th><th>Opłata za wykup / 100 zł</th></tr></thead>
+              <tbody id="obTable"></tbody>
+            </table>
+          </div>
+          <p class="small" style="margin-top:.6rem">Oferta Ministerstwa Finansów z sierpnia 2026 r. Warunki zmieniają się co miesiąc — przed zakupem sprawdź bieżący list emisyjny.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. BANK -->
+    <div class="calc" id="c-bank">
+      <div class="calc-grid">
+        <div class="panel">
+          <label class="fld"><span>Kwota na lokacie <b id="l-lk">30 000 zł</b></span>
+            <input type="range" id="lk" min="1000" max="500000" step="1000" value="30000"></label>
+          <label class="fld"><span>Oprocentowanie w skali roku <b id="l-lr">4,50%</b></span>
+            <input type="range" id="lr" min="0" max="12" step="0.05" value="4.5"></label>
+          <label class="fld"><span>Na ile miesięcy <b id="l-lm">12</b></span>
+            <input type="range" id="lm" min="1" max="60" step="1" value="12"></label>
+          <label class="fld"><span>Inflacja <b id="l-li">3,0%</b></span>
+            <input type="range" id="li" min="0" max="20" step="0.1" value="3"></label>
+          <p class="note">Bank sam pobiera podatek Belki — na wyciągu widzisz już kwotę netto. „Promocyjne 8%” dotyczy zwykle tylko nowych środków i pierwszych 3 miesięcy, więc licz zawsze <strong>ważoną</strong> stopę za cały rok.</p>
+        </div>
+        <div class="out">
+          <div class="kpis">
+            <div class="kpi"><b class="num" id="k-lbrutto">—</b><small>Odsetki brutto</small></div>
+            <div class="kpi v"><b class="num" id="k-lbelka">—</b><small>Podatek Belki</small></div>
+            <div class="kpi g"><b class="num" id="k-lnetto">—</b><small>Odsetki netto</small></div>
+            <div class="kpi r"><b class="num" id="k-lreal">—</b><small>Realny zysk po inflacji</small></div>
+          </div>
+          <svg class="chart" id="ch-bank" viewBox="0 0 720 210"></svg>
+          <p class="note" id="n-bank"></p>
+          <p style="font-size:.9rem;margin-top:1rem">Aby lokata nie traciła wartości, musi mieć oprocentowanie co najmniej <span class="num" id="k-lprog">—</span> brutto. Poniżej tego progu realnie dopłacasz do przechowywania pieniędzy.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. EMERYTALNE -->
+    <div class="calc" id="c-emer">
+      <div class="calc-grid">
+        <div class="panel">
+          <label class="fld"><span>Wpłacam rocznie <b id="l-em">11 304 zł</b></span>
+            <input type="range" id="em" min="1200" max="28260" step="120" value="11304"></label>
+          <label class="fld"><span>Przez ile lat <b id="l-el">25</b></span>
+            <input type="range" id="el" min="5" max="45" step="1" value="25"></label>
+          <label class="fld"><span>Roczna stopa zwrotu <b id="l-er">7,0%</b></span>
+            <input type="range" id="er" min="1" max="12" step="0.25" value="7"></label>
+          <label class="fld"><span>Mój próg PIT</span>
+            <select id="ep">
+              <option value="12">12% — pierwszy próg</option>
+              <option value="32">32% — drugi próg</option>
+              <option value="19">19% — podatek liniowy (JDG)</option>
+            </select></label>
+          <label class="fld"><span>Zwrot z IKZE co roku reinwestuję?</span>
+            <select id="ez"><option value="1">Tak, dokładam do portfela</option><option value="0">Nie, wydaję</option></select></label>
+          <p class="note">Limity 2026: IKE <span class="num">28 260 zł</span>, IKZE <span class="num">11 304 zł</span> (etat) lub <span class="num">16 956 zł</span> (działalność).</p>
+        </div>
+        <div class="out">
+          <div class="kpis">
+            <div class="kpi"><b class="num" id="k-zwykle">—</b><small>Zwykłe konto maklerskie</small></div>
+            <div class="kpi g"><b class="num" id="k-ike">—</b><small>IKE — 0% Belki</small></div>
+            <div class="kpi v"><b class="num" id="k-ikze">—</b><small>IKZE — 10% ryczałtu</small></div>
+            <div class="kpi o"><b class="num" id="k-zysk-pokr">—</b><small>Przewaga najlepszego</small></div>
+          </div>
+          <svg class="chart" id="ch-emer" viewBox="0 0 720 280"></svg>
+          <div class="legend">
+            <span><i style="background:var(--line-2)"></i>Zwykłe konto</span>
+            <span><i style="background:var(--zloty)"></i>IKE</span>
+            <span><i style="background:var(--fiolet)"></i>IKZE (z reinwestycją zwrotu)</span>
+          </div>
+          <p class="note" id="n-emer"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. PODUSZKA -->
+    <div class="calc" id="c-podusz">
+      <div class="calc-grid">
+        <div class="panel">
+          <label class="fld"><span>Miesięczne koszty życia <b id="l-pk">4 500 zł</b></span>
+            <input type="range" id="pk" min="1000" max="30000" step="100" value="4500"></label>
+          <label class="fld"><span>Stabilność dochodu</span>
+            <select id="ps">
+              <option value="3">Etat, dwie osoby zarabiają — 3 miesiące</option>
+              <option value="6" selected>Etat, jeden dochód — 6 miesięcy</option>
+              <option value="9">Działalność / prowizje — 9 miesięcy</option>
+              <option value="12">Branża cykliczna, kredyt — 12 miesięcy</option>
+            </select></label>
+          <label class="fld"><span>Zgromadzony kapitał na emeryturę <b id="l-pw">1 000 000 zł</b></span>
+            <input type="range" id="pw" min="50000" max="5000000" step="50000" value="1000000"></label>
+          <label class="fld"><span>Stopa wypłaty rocznie <b id="l-pr">4,0%</b></span>
+            <input type="range" id="pr" min="2" max="8" step="0.1" value="4"></label>
+          <p class="note">Poduszka to nie inwestycja — jej zadaniem jest być nudną i dostępną w 24 h. Konto oszczędnościowe, OTS albo ROR, nigdy akcje.</p>
+        </div>
+        <div class="out">
+          <div class="kpis">
+            <div class="kpi g"><b class="num" id="k-pod-cel">—</b><small>Cel poduszki</small></div>
+            <div class="kpi"><b class="num" id="k-pod-mies">—</b><small>Wypłata miesięczna z kapitału</small></div>
+            <div class="kpi v"><b class="num" id="k-pod-net">—</b><small>Po podatku Belki</small></div>
+            <div class="kpi o"><b class="num" id="k-pod-fi">—</b><small>Kapitał na pokrycie kosztów życia</small></div>
+          </div>
+          <svg class="chart" id="ch-podusz" viewBox="0 0 720 230"></svg>
+          <p class="note" id="n-podusz"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ PODATKI ══════════════ -->
+<section id="podatki">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">03 · Kto ile zabiera</div>
+      <h2>Ściąga podatkowa</h2>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Z czego zysk</th><th>Stawka</th><th>Kto rozlicza</th><th>Na co uważać</th></tr></thead>
+        <tbody>
+          <tr><td>Sprzedaż akcji i ETF-ów z rachunku maklerskiego</td><td class="num">19%</td><td>Ty — PIT-38 do 30 kwietnia, na podstawie PIT-8C</td><td>Straty można odliczać przez 5 kolejnych lat, maks. 50% straty w jednym roku</td></tr>
+          <tr><td>Dywidenda ze spółki z GPW</td><td class="num">19%</td><td>Płatnik potrąca automatycznie</td><td>Na konto wpływa już kwota netto, nic nie zgłaszasz</td></tr>
+          <tr><td>Dywidenda ze spółki z USA</td><td class="num">15% + 4%</td><td>15% u źródła (po złożeniu W-8BEN), 4% dopłacasz w PIT-38</td><td>Bez W-8BEN potrącą 30% i tego nadmiaru nie odzyskasz w PIT</td></tr>
+          <tr><td>Odsetki z lokaty i konta oszczędnościowego</td><td class="num">19%</td><td>Bank potrąca automatycznie</td><td>Podatek liczony od każdej kapitalizacji, zaokrąglany do pełnych groszy</td></tr>
+          <tr><td>Obligacje skarbowe detaliczne</td><td class="num">19%</td><td>Agent emisji potrąca przy wypłacie odsetek</td><td>Opłata za przedterminowy wykup pomniejsza odsetki, ale nie kapitał</td></tr>
+          <tr><td>Fundusz inwestycyjny otwarty (TFI)</td><td class="num">19%</td><td>TFI potrąca przy umorzeniu jednostek</td><td>Strat z FIO <strong>nie skompensujesz</strong> z zyskami z akcji — to osobne koszyki</td></tr>
+          <tr><td>Kryptowaluty</td><td class="num">19%</td><td>Ty — PIT-38, osobna sekcja</td><td>Koszty rozliczasz tylko w roku poniesienia; brak kompensacji z akcjami</td></tr>
+          <tr><td>Zysk z IKE po spełnieniu warunków</td><td class="num">0%</td><td>—</td><td>Wypłata po 60. roku życia (lub 55. z uprawnieniami) i wpłaty w min. 5 latach</td></tr>
+          <tr><td>Wypłata z IKZE po 65. roku życia</td><td class="num">10%</td><td>Instytucja potrąca ryczałt</td><td>10% liczone od <em>całej</em> wypłaty, nie tylko od zysku</td></tr>
+          <tr><td>Wcześniejszy zwrot z IKZE</td><td>wg skali PIT</td><td>Ty — doliczasz do dochodu</td><td>Cała zgromadzona kwota wraca do opodatkowania; łatwo wpaść w drugi próg</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid2" style="margin-top:1.4rem">
+      <div class="card">
+        <h3>Podatek od dywidendy nie jest tym samym, co od zysku ze sprzedaży</h3>
+        <p style="font-size:.94rem">Przy sprzedaży płacisz 19% od <em>różnicy</em> między ceną sprzedaży a kosztem zakupu, więc straty obniżają podatek. Przy dywidendzie płacisz 19% od pełnej wypłaty — bez żadnych kosztów i bez możliwości odliczenia straty z innego waloru. To jeden z argumentów za ETF-ami akumulującymi, które dywidend nie wypłacają, tylko reinwestują je wewnątrz funduszu.</p>
+      </div>
+      <div class="card">
+        <h3>OKI — co się zmienia od 2027</h3>
+        <p style="font-size:.94rem">Sejm uchwalił ustawę o Osobistych Kontach Inwestycyjnych w lipcu 2026 r.; przepisy mają wejść w życie 1 stycznia 2027 r. Zamiast 19% od zysku ma pojawić się podatek od <strong>wartości aktywów</strong> ponad kwotę wolną: 100 000 zł dla części inwestycyjnej i 25 000 zł dla oszczędnościowej. Stawka na 2027 r. to 0,85%, później 19% stopy referencyjnej NBP z 31 października. Haczyk: daninę można zapłacić także w roku, w którym portfel stracił na wartości.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ POKROWCE ══════════════ -->
+<section id="pokrowce">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">04 · Limity na 2026 rok</div>
+      <h2>Trzy pokrowce podatkowe</h2>
+    </div>
+    <p class="lead" style="margin-bottom:1.6rem">To nie są osobne produkty, tylko „opakowania” na rachunek maklerski lub fundusz. W środku możesz mieć te same akcje i ETF-y — różni się wyłącznie to, ile z zysku zostaje u Ciebie.</p>
+    <div class="grid3">
+      <div class="sleeve ike">
+        <div class="eyebrow">Indywidualne Konto Emerytalne</div>
+        <h3>IKE</h3>
+        <div class="big">28 260 zł / rok</div>
+        <ul>
+          <li>Zysk zwolniony z podatku Belki w całości</li>
+          <li>Brak ulgi tu i teraz — wpłacasz z pieniędzy po opodatkowaniu</li>
+          <li>Warunek: wypłata po 60. r.ż. i wpłaty w min. 5 latach</li>
+          <li>Środki dziedziczone bez podatku</li>
+          <li class="no">Wcześniejszy zwrot = 19% od zysku, czyli powrót do punktu wyjścia</li>
+        </ul>
+      </div>
+      <div class="sleeve ikze">
+        <div class="eyebrow">Indywidualne Konto Zabezpieczenia Emerytalnego</div>
+        <h3>IKZE</h3>
+        <div class="big">11 304 zł / rok</div>
+        <ul>
+          <li>Wpłatę odliczasz od podstawy PIT — zwrot w roku następnym</li>
+          <li>Przy drugim progu to nawet ok. 3 617 zł zwrotu rocznie</li>
+          <li>Działalność gospodarcza: limit 16 956 zł</li>
+          <li>Wypłata po 65. r.ż.: ryczałt 10% od całości</li>
+          <li class="no">Wcześniejszy zwrot doliczany do dochodu wg skali — bardzo kosztowny</li>
+        </ul>
+      </div>
+      <div class="sleeve oki">
+        <div class="eyebrow">Osobiste Konto Inwestycyjne — od 2027</div>
+        <h3>OKI</h3>
+        <div class="big">100 000 zł wolne</div>
+        <ul>
+          <li>Brak limitu wpłat i brak blokady wieku</li>
+          <li>Zamiast Belki: podatek od wartości aktywów ponad kwotę wolną</li>
+          <li>Stawka w 2027 r.: 0,85% od nadwyżki</li>
+          <li>Osobna kwota wolna 25 000 zł dla części oszczędnościowej</li>
+          <li class="no">Danina należna nawet przy stracie — liczy się wartość, nie zysk</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.2rem">
+      <h3>A PPK i PPE?</h3>
+      <p style="font-size:.94rem;margin:.4rem 0 0">W PPK dokładasz zwykle 2% wynagrodzenia, pracodawca 1,5%, a państwo dorzuca 250 zł wpłaty powitalnej i 240 zł rocznie. To jedyny mechanizm, w którym dostajesz pieniądze od kogoś innego — dlatego rachunek opłacalności prawie zawsze wychodzi na plus, nawet jeśli fundusz zdefiniowanej daty nie zachwyca. Limit dodatkowych wpłat do PPE w 2026 r. wynosi 42 390 zł.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ QUIZ ══════════════ -->
+<section id="quiz">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">05 · Zamknięta książka</div>
+      <h2>Sprawdź się</h2>
+    </div>
+    <div class="quiz-card">
+      <div class="qbar"><i id="qfill"></i></div>
+      <div id="qzone">
+        <div class="eyebrow" id="qcount">Pytanie 1 z 8</div>
+        <h3 id="qtext" style="font-size:1.45rem;margin-top:.5rem">—</h3>
+        <div class="qopts" id="qopts"></div>
+        <div class="qexp" id="qexp"></div>
+        <div style="margin-top:1.2rem"><button class="btn" id="qnext" style="display:none">Dalej</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ SŁOWNIK ══════════════ -->
+<section id="slownik">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">06 · Bez żargonu</div>
+      <h2>Słownik</h2>
+    </div>
+    <label class="fld" style="max-width:420px">
+      <span>Szukaj pojęcia</span>
+      <input type="text" id="gsearch" placeholder="np. spread, TER, WIBOR" autocomplete="off">
+    </label>
+    <div class="gloss" id="gloss"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="disclaimer">
+      <strong>To materiał edukacyjny, nie rekomendacja inwestycyjna ani porada podatkowa.</strong> Kalkulatory pokazują uproszczone modele oparte na Twoich założeniach — rzeczywiste wyniki będą inne. Stawki i limity podano według stanu na sierpień 2026 r.; przepisy o OKI czekają na zakończenie procesu legislacyjnego. Przed decyzją sprawdź aktualne warunki u swojego brokera, w banku lub na obligacjeskarbowe.pl, a w sprawach podatkowych skonsultuj się z doradcą.
+    </div>
+    <p style="margin-top:1.4rem">Kapitał — interaktywna akademia inwestowania. Zbudowana do uczenia innych.</p>
+  </div>
+</footer>
+<script>
+"use strict";
+/* ═══════════════ NARZĘDZIA ═══════════════ */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const NB = "\u00A0";
+const plnFmt = new Intl.NumberFormat('pl-PL',{maximumFractionDigits:0});
+const plnFmt2 = new Intl.NumberFormat('pl-PL',{minimumFractionDigits:2,maximumFractionDigits:2});
+const zl = v => plnFmt.format(Math.round(v)) + NB + "zł";
+const zl2 = v => plnFmt2.format(v) + NB + "zł";
+const pc = v => plnFmt2.format(v).replace(/,00$/,'') + "%";
+const short = v => Math.abs(v) >= 1e6 ? (v/1e6).toFixed(2).replace('.',',')+NB+"mln"+NB+"zł"
+                 : Math.abs(v) >= 1e4 ? plnFmt.format(Math.round(v/1000))+NB+"tys."+NB+"zł" : zl(v);
+const clamp = (v,a,b)=>Math.min(b,Math.max(a,v));
+
+/* ═══════════════ GILOSZ (hero) ═══════════════ */
+(function guilloche(){
+  const mk = (R,r,d,turns,step) => {
+    let p = "";
+    for (let t = 0; t <= Math.PI*2*turns; t += step) {
+      const k = (R-r)/r;
+      const x = 200 + (R-r)*Math.cos(t) + d*Math.cos(k*t);
+      const y = 200 + (R-r)*Math.sin(t) - d*Math.sin(k*t);
+      p += (t === 0 ? "M" : "L") + x.toFixed(2) + " " + y.toFixed(2);
+    }
+    return p;
+  };
+  const g1 = $('#g1'), g2 = $('#g2');
+  const specs1 = [[180,52,44,13],[180,64,38,15],[180,41,50,11]];
+  specs1.forEach((s,i)=>{
+    const el = document.createElementNS("http://www.w3.org/2000/svg","path");
+    el.setAttribute("d", mk(s[0],s[1],s[2],s[3],0.035));
+    el.style.animationDelay = (i*0.22)+"s";
+    g1.appendChild(el);
+  });
+  [[196,73,28,9],[150,37,26,8]].forEach((s,i)=>{
+    const el = document.createElementNS("http://www.w3.org/2000/svg","path");
+    el.setAttribute("d", mk(s[0],s[1],s[2],s[3],0.04));
+    el.style.animationDelay = (0.5+i*0.25)+"s";
+    g2.appendChild(el);
+  });
+})();
+
+/* ═══════════════ WYKRESY ═══════════════ */
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(n, attrs, txt){
+  const e = document.createElementNS(SVGNS,n);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (txt != null) e.textContent = txt;
+  return e;
+}
+function lineChart(target, series, xLabels, opts){
+  opts = opts || {};
+  const svg = typeof target === 'string' ? $(target) : target;
+  const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+  const W = vb[2], H = vb[3];
+  const m = {l:64, r:14, t:14, b:26};
+  svg.textContent = "";
+  const all = series.flatMap(s=>s.data);
+  const max = opts.max != null ? opts.max : Math.max(1, ...all) * 1.06;
+  const min = 0;
+  const n = series[0].data.length;
+  const X = i => m.l + (W-m.l-m.r) * (n<2?0:i/(n-1));
+  const Y = v => H-m.b - (H-m.t-m.b) * ((v-min)/(max-min));
+  for (let g=0; g<=4; g++){
+    const v = min + (max-min)*g/4, y = Y(v);
+    svg.appendChild(el('line',{x1:m.l,x2:W-m.r,y1:y,y2:y,class:'grid'}));
+    svg.appendChild(el('text',{x:m.l-8,y:y+3,'text-anchor':'end',class:'axis'}, short(v)));
+  }
+  const stepL = Math.max(1, Math.ceil(n/7));
+  xLabels.forEach((lb,i)=>{ if (i%stepL===0 || i===n-1)
+    svg.appendChild(el('text',{x:X(i),y:H-8,'text-anchor':'middle',class:'axis'}, lb)); });
+  series.forEach(s=>{
+    let d = "", a = "";
+    s.data.forEach((v,i)=>{ const c = (i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1); d+=c; });
+    if (s.fill){
+      a = d + "L"+X(n-1).toFixed(1)+" "+Y(0)+"L"+X(0).toFixed(1)+" "+Y(0)+"Z";
+      svg.appendChild(el('path',{d:a, fill:s.color, opacity:.16, stroke:'none'}));
+    }
+    svg.appendChild(el('path',{d, fill:'none', stroke:s.color, 'stroke-width':s.w||2.2,
+      'stroke-dasharray':s.dash||'none','stroke-linejoin':'round','stroke-linecap':'round'}));
+  });
+}
+function barChart(target, items, opts){
+  opts = opts||{};
+  const svg = typeof target === 'string' ? $(target) : target;
+  const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+  const W = vb[2], H = vb[3];
+  svg.textContent = "";
+  const m = {l:150, r:70, t:12, b:12};
+  const max = Math.max(1, ...items.map(i=>i.v));
+  const bh = Math.min(40, (H-m.t-m.b)/items.length - 10);
+  items.forEach((it,i)=>{
+    const y = m.t + i*((H-m.t-m.b)/items.length);
+    const w = (W-m.l-m.r) * (it.v/max);
+    svg.appendChild(el('text',{x:m.l-10,y:y+bh/2+4,'text-anchor':'end',class:'axis'}, it.label));
+    svg.appendChild(el('rect',{x:m.l,y,width:Math.max(2,w),height:bh,fill:it.color,opacity: it.ghost ? .3 : .85}));
+    svg.appendChild(el('text',{x:m.l+w+8,y:y+bh/2+4,class:'axis'}, it.text || zl(it.v)));
+  });
+}
+function stackChart(target, parts){
+  const svg = typeof target==='string'?$(target):target;
+  const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+  const W=vb[2],H=vb[3]; svg.textContent="";
+  const total = parts.reduce((a,b)=>a+Math.max(0,b.v),0) || 1;
+  let x = 30; const width = W-60, y=52, h=54;
+  parts.forEach(p=>{
+    const w = width*Math.max(0,p.v)/total;
+    if (w<=0) return;
+    svg.appendChild(el('rect',{x,y,width:w,height:h,fill:p.color,opacity:.88}));
+    if (w>58){
+      svg.appendChild(el('text',{x:x+w/2,y:y+h/2+4,'text-anchor':'middle',class:'axis',fill:'#EFF1EB','font-size':'11'}, zl(p.v)));
+    }
+    svg.appendChild(el('text',{x:x+w/2,y:y+h+20,'text-anchor':'middle',class:'axis'}, w>52?p.label:''));
+    x += w;
+  });
+  svg.appendChild(el('text',{x:30,y:32,class:'axis','font-size':'11'}, 'Podział całości: ' + zl(total)));
+}
+
+/* ═══════════════ MAPA MYŚLI ═══════════════ */
+const K = {
+  zloty:'#1C6A55', ochra:'#B37421', fiolet:'#654A87', karmin:'#A03442', ink:'#15201B', ltg:'#2E9377'
+};
+const MAP = [
+  { t:"Fundamenty", c:K.zloty, kids:[
+    {t:"Poduszka finansowa", tag:"start", d:"Zapas gotówki na 3–12 miesięcy kosztów życia, trzymany poza rynkiem. To ona sprawia, że nie musisz sprzedawać akcji w najgorszym momencie.", bul:["Trzymaj na koncie oszczędnościowym, w OTS albo ROR","Nie inwestuj poduszki — jej zadaniem jest dostępność, nie zysk","Buduj ją przed pierwszą inwestycją, nie po"], calc:"c-podusz", cn:"Policz swoją poduszkę"},
+    {t:"Procent składany", tag:"mechanizm", d:"Odsetki naliczają się od odsetek. Efekt jest niepozorny przez pierwsze lata i dramatyczny po dwudziestu — dlatego czas na rynku bije wyczucie momentu.", bul:["Przy 7% rocznie kapitał podwaja się mniej więcej co 10 lat","Ostatnia dekada daje więcej niż dwie pierwsze razem","Każda przerwa we wpłatach kosztuje najwięcej na końcu"], calc:"c-skladany", cn:"Zobacz krzywą"},
+    {t:"Inflacja", tag:"przeciwnik", d:"Wzrost cen zjada siłę nabywczą pieniądza. Gotówka w skarpecie nie „stoi w miejscu” — co roku traci realnie tyle, ile wynosi inflacja.", bul:["Przy 4% inflacji 100 000 zł po 10 latach ma siłę ok. 67 500 zł","Realny zysk = zysk netto minus inflacja","Obligacje COI i EDO są wprost indeksowane wskaźnikiem GUS"], calc:"c-bank", cn:"Lokata a inflacja"},
+    {t:"Ryzyko a zmienność", tag:"pojęcie", d:"Zmienność to wahania wyceny. Ryzyko to trwała utrata kapitału. Szeroki rynek akcji jest zmienny, ale historycznie odrabiał spadki; pojedyncza spółka może nie odrobić nigdy.", bul:["Im dłuższy horyzont, tym mniej boli zmienność","Dywersyfikacja obniża ryzyko, nie zmienność","Największe ryzyko to sprzedaż w panice"]},
+    {t:"Horyzont", tag:"decyzja", d:"Pierwsze pytanie przed każdą inwestycją: kiedy będę potrzebować tych pieniędzy? Odpowiedź wybiera instrument, a nie odwrotnie.", bul:["Do 2 lat — konto oszczędnościowe, OTS, ROR","2–5 lat — TOS, DOR, COI","Ponad 10 lat — akcje i ETF-y, EDO"]}
+  ]},
+  { t:"Giełda i akcje", c:K.ink, kids:[
+    {t:"Czym jest akcja", tag:"podstawa", d:"Kupując akcję, kupujesz ułamek firmy: prawo do udziału w zyskach i głosu na walnym zgromadzeniu. Kurs to tylko cena, jaką ktoś dziś płaci za ten ułamek.", bul:["Zarabiasz na wzroście wartości firmy i na dywidendzie","Spółka może zbankrutować — akcjonariusz jest ostatni w kolejce","Nie kupujesz „wykresu”, tylko konkretny biznes"]},
+    {t:"GPW, WIG i indeksy", tag:"rynek", d:"Giełda Papierów Wartościowych w Warszawie to miejsce obrotu. WIG20 obejmuje 20 największych spółek, mWIG40 średnie, sWIG80 mniejsze, a WIG to szeroki indeks całego rynku.", bul:["Indeks to średnia — nie da się go „kupić” bezpośrednio, tylko przez ETF","WIG20 to indeks cenowy, WIG20TR uwzględnia dywidendy","Polski rynek to ok. 1% globalnej kapitalizacji"]},
+    {t:"Dywidenda", tag:"przepływ", d:"Część zysku wypłacana akcjonariuszom. W dniu ustalenia prawa kurs spada mniej więcej o wartość dywidendy — to nie jest darmowy pieniądz, tylko przesunięcie z ceny do gotówki.", bul:["19% podatku potrąca płatnik, na konto wpływa netto","Od dywidendy nie odliczysz kosztów ani strat","Wysoka stopa dywidendy bywa objawem problemów, nie jakości"], calc:"c-belka", cn:"Policz podatek"},
+    {t:"Zlecenia i spread", tag:"praktyka", d:"Zlecenie z limitem określa maksymalną cenę zakupu; PKC kupuje po każdej. Spread to różnica między najlepszą ofertą kupna i sprzedaży — Twój ukryty koszt wejścia.", bul:["Na mało płynnych spółkach spread potrafi zjeść kilka procent","Unikaj PKC na otwarciu i zamknięciu notowań","Sprawdzaj wolumen, zanim kupisz"]},
+    {t:"Wycena spółki", tag:"analiza", d:"C/Z mówi, ile płacisz za złotówkę rocznego zysku, C/WK — za złotówkę majątku. To wskazówki porównawcze wewnątrz branży, nie wyroki.", bul:["Porównuj tylko spółki z tej samej branży","Zysk księgowy to nie gotówka — patrz na przepływy operacyjne","Zadłużenie decyduje o tym, czy firma przetrwa kryzys"]}
+  ]},
+  { t:"ETF i fundusze", c:K.ltg, kids:[
+    {t:"Czym jest ETF", tag:"narzędzie", d:"Fundusz notowany na giełdzie, który odwzorowuje indeks. Jednym zleceniem kupujesz koszyk setek albo tysięcy spółek, po ułamku ceny każdej z nich.", bul:["Kupujesz i sprzedajesz jak akcję, w godzinach notowań","Ryzyko pojedynczej spółki praktycznie znika","Najpopularniejsze: MSCI World, S&P 500, MSCI ACWI"]},
+    {t:"Akumulujący czy wypłacający", tag:"wybór", d:"Akumulujący (Acc) reinwestuje dywidendy wewnątrz funduszu — nie płacisz podatku co roku. Wypłacający (Dist) przelewa je na konto i wtedy Belka należy się od razu.", bul:["Acc odracza podatek do momentu sprzedaży — kapitał pracuje w całości","Dist ma sens, gdy potrzebujesz bieżącego przepływu","Przy budowaniu kapitału Acc zwykle wygrywa"], calc:"c-skladany", cn:"Zobacz efekt odroczenia"},
+    {t:"TER i koszty", tag:"koszt", d:"Total Expense Ratio to roczna opłata funduszu, pobierana z aktywów. Tanie ETF-y mają 0,05–0,25%, aktywne fundusze TFI potrafią 2% i więcej.", bul:["TER liczy się od kapitału, nie od zysku — płacisz też w latach strat","Różnica 1,8 pkt proc. przez 30 lat to zwykle kilkaset tysięcy złotych","Do TER dochodzi spread i prowizja maklerska"], calc:"c-koszty", cn:"Policz różnicę"},
+    {t:"Dywersyfikacja", tag:"zasada", d:"Rozłożenie kapitału między wiele aktywów, branż i krajów. Nie zwiększa oczekiwanego zysku, ale drastycznie zmniejsza szansę, że jedna zła decyzja zniszczy portfel.", bul:["Jeden globalny ETF akcyjny daje ekspozycję na ~1500 spółek","Uwaga na koncentrację: S&P 500 to w dużej mierze kilka firm technologicznych","Polski akcent w portfelu to wybór, nie konieczność"]},
+    {t:"ETF a fundusz TFI", tag:"porównanie", d:"ETF-y są pasywne i tanie, fundusze aktywne obiecują pobicie rynku. Statystycznie większość aktywnych funduszy przegrywa ze swoim indeksem po odjęciu opłat.", bul:["Straty z funduszy TFI nie kompensują się z zyskami z akcji","ETF na GPW rozliczasz w PIT-38, fundusz TFI — podatek pobiera TFI","W ETF widzisz skład portfela codziennie"]}
+  ]},
+  { t:"Obligacje", c:K.ochra, kids:[
+    {t:"Obligacje skarbowe", tag:"bezpiecznik", d:"Pożyczasz pieniądze państwu, ono płaci odsetki i oddaje nominał. Detaliczne obligacje oszczędnościowe kupisz od 100 zł, bez rachunku maklerskiego.", bul:["Możesz wycofać się przed terminem za niewielką opłatą","Nie mają wyceny rynkowej — nie zobaczysz spadku wartości","Sprzedawane w nowej emisji co miesiąc"], calc:"c-oblig", cn:"Policz emisję"},
+    {t:"Indeksowane inflacją", tag:"tarcza", d:"COI i EDO w pierwszym roku mają stałą stawkę, a od drugiego: inflacja z GUS plus marża. Dopóki marża jest dodatnia, realnie zarabiasz — po podatku Belki margines robi się jednak cienki.", bul:["COI: 4 lata, marża 1,50 pkt proc., odsetki co roku","EDO: 10 lat, marża 2,00 pkt proc., odsetki kapitalizowane","W IKE unikasz Belki i cała marża zostaje u Ciebie"], calc:"c-oblig", cn:"Porównaj serie"},
+    {t:"Ryzyko stopy procentowej", tag:"pułapka", d:"Obligacje o stałym kuponie notowane na rynku tanieją, gdy stopy rosną. Detaliczne obligacje oszczędnościowe tego nie pokazują, bo zawsze możesz je oddać po nominale.", bul:["Im dłuższy termin, tym większa wrażliwość na stopy","ROR i DOR podążają za stopą NBP — chronią przed podwyżkami","TOS zamraża stawkę na 3 lata: dobrze przy spadkach stóp, źle przy wzrostach"]},
+    {t:"Obligacje firm", tag:"wyższe ryzyko", d:"Spółki pożyczają na rynku Catalyst, płacąc więcej niż państwo. Wyższy kupon to wynagrodzenie za ryzyko, że emitent nie odda pieniędzy.", bul:["Brak gwarancji Skarbu Państwa i BFG","Zwykle WIBOR plus marża — kupon płynie za stopami","Czytaj warunki emisji: zabezpieczenie, kowenanty, opcja wcześniejszego wykupu"]}
+  ]},
+  { t:"Bank i oszczędności", c:'#8A5A18', kids:[
+    {t:"Konto oszczędnościowe", tag:"płynność", d:"Pieniądze dostępne od ręki, oprocentowanie zmienne, bank może je obniżyć w każdej chwili. Idealne miejsce na poduszkę finansową.", bul:["Odsetki naliczane dziennie, kapitalizacja zwykle miesięczna","Promocja obowiązuje najczęściej tylko na nowe środki i do limitu kwoty","Podatek Belki pobiera bank przy każdej kapitalizacji"], calc:"c-bank", cn:"Policz realny zysk"},
+    {t:"Lokata terminowa", tag:"zamrożenie", d:"Stała stawka w zamian za zablokowanie środków. Zerwanie przed terminem zwykle oznacza utratę większości odsetek.", bul:["Sprawdzaj, czy odsetki są naliczane na koniec, czy kapitalizowane","„Lokata 8%” bywa 8% przez 3 miesiące, czyli 2% za rok","Porównuj zawsze stawkę roczną, nie kwotę odsetek"], calc:"c-bank", cn:"Porównaj z inflacją"},
+    {t:"Gwarancja BFG", tag:"bezpieczeństwo", d:"Bankowy Fundusz Gwarancyjny chroni depozyty do równowartości 100 000 euro na osobę w jednym banku. Powyżej tej kwoty warto rozdzielić środki między instytucje.", bul:["Limit dotyczy sumy wszystkich rachunków w danym banku","Wspólne konto to limit dla każdego współposiadacza","SKOK-i również są objęte gwarancją"]},
+    {t:"Waluty obce", tag:"ryzyko", d:"Trzymanie oszczędności w euro czy dolarze przenosi ryzyko z inflacji na kurs walutowy. Zysk z różnic kursowych na rachunku walutowym również podlega rozliczeniu.", bul:["Spread walutowy w banku bywa droższy niż w kantorze internetowym","ETF w USD notowany na GPW i tak masz w złotym w portfelu","Zabezpieczenie walutowe (hedged) kosztuje i obniża zwrot"]}
+  ]},
+  { t:"Podatki i pokrowce", c:K.fiolet, kids:[
+    {t:"Podatek Belki", tag:"19%", d:"Zryczałtowany podatek od dochodów kapitałowych: odsetek, dywidend i zysków ze sprzedaży papierów. Stawka jest płaska i nie zależy od Twoich zarobków.", bul:["Od odsetek i dywidend krajowych pobiera go płatnik","Od sprzedaży akcji i ETF-ów rozliczasz się sam","Prowizje maklerskie obniżają podstawę opodatkowania"], calc:"c-belka", cn:"Policz swój podatek"},
+    {t:"PIT-38 i PIT-8C", tag:"formalności", d:"Do końca lutego broker wysyła PIT-8C z przychodami i kosztami. Na tej podstawie do 30 kwietnia składasz PIT-38 i płacisz podatek.", bul:["Zagraniczni brokerzy nie wystawiają PIT-8C — liczysz wszystko sam","Transakcje w walucie przeliczasz po kursie NBP z dnia poprzedzającego","Strata rozliczana przez 5 lat, maks. 50% jej wartości rocznie"]},
+    {t:"IKE", tag:"0% Belki", d:"Pokrowiec na rachunek maklerski lub fundusz. Zysk całkowicie zwolniony z podatku, jeśli wypłacisz po 60. roku życia i wpłacałeś w co najmniej pięciu latach.", bul:["Limit 2026: 28 260 zł","Brak ulgi przy wpłacie — korzyść przychodzi na końcu","Możesz wypłacić wcześniej, ale wtedy zapłacisz 19% jak zwykle"], calc:"c-emer", cn:"Porównaj warianty"},
+    {t:"IKZE", tag:"ulga w PIT", d:"Wpłatę odliczasz od podstawy opodatkowania już w najbliższym rozliczeniu. Przy wypłacie po 65. roku życia płacisz 10% ryczałtu — ale od całej kwoty, nie tylko od zysku.", bul:["Limit 2026: 11 304 zł na etacie, 16 956 zł przy działalności","Im wyższy próg PIT, tym większa korzyść dziś","Zwrot z urzędu warto od razu reinwestować"], calc:"c-emer", cn:"Zobacz różnicę"},
+    {t:"OKI od 2027", tag:"nowość", d:"Osobiste Konto Inwestycyjne ma zastąpić Belkę podatkiem od wartości aktywów powyżej kwoty wolnej: 100 000 zł dla inwestycji i 25 000 zł dla oszczędności.", bul:["Brak limitu wpłat i brak granicy wieku","Stawka w 2027 r.: 0,85% od nadwyżki","Podatek możliwy także w roku, w którym portfel stracił"]},
+    {t:"PPK", tag:"dopłaty", d:"Pracownicze Plany Kapitałowe: Ty wpłacasz zwykle 2% wynagrodzenia, pracodawca 1,5%, państwo dokłada 250 zł na start i 240 zł rocznie.", bul:["To jedyny mechanizm, w którym dokłada się ktoś inny","Wypłata po 60. r.ż.: 25% od razu, reszta w 120 ratach bez podatku","Wcześniejsza wypłata oznacza utratę dopłat państwa i części wpłat pracodawcy"]}
+  ]}
+];
+
+(function buildMap(){
+  const svg = $('#map');
+  const nodes = [], links = [];
+  const R1 = 250, R2 = 470;
+  MAP.forEach((br,i)=>{
+    const a = (-90 + i*(360/MAP.length)) * Math.PI/180;
+    const bx = Math.cos(a)*R1, by = Math.sin(a)*R1*0.82;
+    nodes.push({x:bx,y:by,label:br.t,kind:'branch',color:br.c,idx:'b'+i});
+    links.push({x1:0,y1:0,x2:bx,y2:by,id:'b'+i,color:br.c});
+    const span = 46, n = br.kids.length;
+    br.kids.forEach((kd,j)=>{
+      const off = (n===1?0:(j-(n-1)/2)) * (span/Math.max(1,n-1)) * (n>1?1:0);
+      const a2 = a + off*Math.PI/180;
+      const rr = R2 + (j%2)*46;
+      const x = Math.cos(a2)*rr, y = Math.sin(a2)*rr*0.82;
+      nodes.push({x,y,label:kd.t,kind:'leaf',color:br.c,data:kd,idx:'b'+i,branch:br.t});
+      links.push({x1:bx,y1:by,x2:x,y2:y,id:'b'+i,color:br.c});
+    });
+  });
+  const gL = el('g',{}), gN = el('g',{});
+  links.forEach(l=>{
+    const mx = (l.x1+l.x2)/2;
+    const d = `M${l.x1.toFixed(1)} ${l.y1.toFixed(1)} C${mx.toFixed(1)} ${l.y1.toFixed(1)}, ${mx.toFixed(1)} ${l.y2.toFixed(1)}, ${l.x2.toFixed(1)} ${l.y2.toFixed(1)}`;
+    const p = el('path',{d,class:'link','data-b':l.id});
+    gL.appendChild(p);
+  });
+  // korzeń
+  const root = el('g',{class:'node root'});
+  root.appendChild(el('rect',{x:-92,y:-30,width:184,height:60,rx:3,class:'bg'}));
+  root.appendChild(el('text',{x:0,y:2,'text-anchor':'middle'},'Twoje pieniądze'));
+  gN.appendChild(root);
+  nodes.forEach(nd=>{
+    const w = Math.max(96, nd.label.length*7.3 + 26);
+    const h = nd.kind==='branch' ? 42 : 32;
+    const g = el('g',{class:'node '+nd.kind, transform:`translate(${nd.x.toFixed(1)},${nd.y.toFixed(1)})`,
+                      tabindex:'0', role:'button', 'aria-label':nd.label,'data-b':nd.idx});
+    const r = el('rect',{x:-w/2,y:-h/2,width:w,height:h,rx:3,class:'bg'});
+    r.style.stroke = nd.color;
+    if (nd.kind==='branch'){ r.style.fill = '#DCE0D6'; r.style.strokeWidth = '1.8'; }
+    g.appendChild(r);
+    const t = el('text',{x:0,y:nd.kind==='branch'?1:0,'text-anchor':'middle'}, nd.label);
+    if (nd.kind==='branch'){ t.setAttribute('font-weight','600'); t.setAttribute('font-size','13.5'); }
+    g.appendChild(t);
+    if (nd.kind==='leaf' && nd.data.tag){
+      const s = el('text',{x:0,y:h/2+12,'text-anchor':'middle',class:'sub'}, nd.data.tag);
+      g.appendChild(s);
+    }
+    const open = ()=>{ if (nd.kind==='leaf') openDrawer(nd); else focusBranch(nd.idx); };
+    g.addEventListener('click', open);
+    g.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();open();} });
+    g.addEventListener('mouseenter', ()=>highlight(nd.idx,true));
+    g.addEventListener('mouseleave', ()=>highlight(nd.idx,false));
+    gN.appendChild(g);
+  });
+  svg.appendChild(gL); svg.appendChild(gN);
+
+  function highlight(id,on){
+    $$('#map .link[data-b="'+id+'"]').forEach(p=>p.classList.toggle('hot',on));
+  }
+  /* pan / zoom */
+  let vb = {x:-720, y:-470, w:1440, h:940};
+  const apply = ()=> svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  apply();
+  const home = {...vb};
+  function focusBranch(id){
+    const ns = nodes.filter(n=>n.idx===id);
+    const xs = ns.map(n=>n.x), ys = ns.map(n=>n.y);
+    const pad = 190;
+    const x1=Math.min(...xs,0)-pad, x2=Math.max(...xs,0)+pad, y1=Math.min(...ys,0)-pad, y2=Math.max(...ys,0)+pad;
+    const w = Math.max(x2-x1, (y2-y1)*(svg.clientWidth/svg.clientHeight||1.6));
+    vb = {x:(x1+x2)/2-w/2, y:(y1+y2)/2-(w/1.6)/2, w, h:w/1.6}; apply();
+  }
+  let drag=null;
+  svg.addEventListener('pointerdown', e=>{
+    if (e.target.closest('.node')) return;
+    drag={x:e.clientX,y:e.clientY,vx:vb.x,vy:vb.y}; svg.classList.add('drag'); svg.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener('pointermove', e=>{
+    if(!drag) return;
+    const k = vb.w / svg.clientWidth;
+    vb.x = drag.vx - (e.clientX-drag.x)*k; vb.y = drag.vy - (e.clientY-drag.y)*k; apply();
+  });
+  const stop = ()=>{drag=null; svg.classList.remove('drag');};
+  svg.addEventListener('pointerup', stop); svg.addEventListener('pointercancel', stop);
+  svg.addEventListener('wheel', e=>{ e.preventDefault(); zoom(e.deltaY>0?1.1:0.9); }, {passive:false});
+  function zoom(f){
+    const cw = clamp(vb.w*f, 420, 3400);
+    const cx = vb.x+vb.w/2, cy = vb.y+vb.h/2;
+    vb = {w:cw, h:cw/1.53, x:cx-cw/2, y:cy-cw/1.53/2}; apply();
+  }
+  $('#zin').onclick=()=>zoom(0.82); $('#zout').onclick=()=>zoom(1.22);
+  $('#zreset').onclick=()=>{vb={...home}; apply();};
+})();
+
+/* ── szuflada ── */
+const drawer = $('#drawer');
+function openDrawer(nd){
+  const d = nd.data;
+  $('#dTitle').textContent = d.t;
+  const tag = $('#dTag'); tag.textContent = nd.branch + ' · ' + d.tag; tag.style.color = nd.color;
+  let html = `<p>${d.d}</p>`;
+  if (d.bul){ html += `<h4>Zapamiętaj</h4><ul>${d.bul.map(b=>`<li>${b}</li>`).join('')}</ul>`; }
+  if (d.calc){ html += `<button class="btn" data-goto="${d.calc}">${d.cn||'Otwórz kalkulator'}</button>`; }
+  $('#dBody').innerHTML = html;
+  drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false');
+  $('#dClose').focus();
+}
+function closeDrawer(){ drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); }
+$('#dClose').onclick = closeDrawer;
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawer(); });
+$('#dBody').addEventListener('click', e=>{
+  const b = e.target.closest('[data-goto]'); if(!b) return;
+  closeDrawer(); selectTab(b.dataset.goto);
+  $('#kalkulatory').scrollIntoView({behavior:'smooth'});
+});
+
+/* ═══════════════ ZAKŁADKI ═══════════════ */
+function selectTab(id){
+  $$('#tabs .tab').forEach(t=>t.setAttribute('aria-selected', String(t.dataset.c===id)));
+  $$('.calc').forEach(c=>c.classList.toggle('on', c.id===id));
+}
+$('#tabs').addEventListener('click', e=>{
+  const t = e.target.closest('.tab'); if(!t) return; selectTab(t.dataset.c);
+});
+
+/* ═══════════════ 1 · PROCENT SKŁADANY ═══════════════ */
+function calcSkladany(){
+  const s0=+$('#s0').value, sm=+$('#sm').value, sl=+$('#sl').value, sr=+$('#sr').value/100, si=+$('#si').value/100;
+  $('#l-s0').textContent=zl(s0); $('#l-sm').textContent=zl(sm); $('#l-sl').textContent=sl;
+  $('#l-sr').textContent=pc(sr*100); $('#l-si').textContent=pc(si*100);
+  const rm = Math.pow(1+sr,1/12)-1;
+  let bal=s0, wpl=s0;
+  const A=[s0],B=[s0],C=[s0],L=['0'];
+  for(let y=1;y<=sl;y++){
+    for(let m=0;m<12;m++){ bal=bal*(1+rm)+sm; wpl+=sm; }
+    A.push(wpl); B.push(bal); C.push(bal/Math.pow(1+si,y)); L.push(String(y));
+  }
+  const zysk=Math.max(0,bal-wpl), belka=zysk*0.19, netto=bal-belka;
+  $('#k-wplaty').textContent=short(wpl); $('#k-koniec').textContent=short(bal);
+  $('#k-belka').textContent=short(belka); $('#k-real').textContent=short(netto/Math.pow(1+si,sl));
+  lineChart('#ch-skladany',[
+    {data:A,color:'#B37421',fill:true},
+    {data:B,color:'#1C6A55',fill:true},
+    {data:C,color:'#654A87',dash:'5 4',w:1.8}
+  ],L);
+  const mult = wpl>0 ? bal/wpl : 0;
+  $('#n-skladany').innerHTML = `Z każdej złotówki wpłaty zrobiło się <strong>${mult.toFixed(2).replace('.',',')} zł</strong>. Odsetki i wzrost wartości odpowiadają za <strong>${wpl>0?Math.round(zysk/bal*100):0}%</strong> końcowego kapitału — resztę wpłaciłeś sam. Po podatku i inflacji zostaje siła nabywcza <strong>${short(netto/Math.pow(1+si,sl))}</strong> w dzisiejszych pieniądzach.`;
+}
+$$('#c-skladany input').forEach(i=>i.addEventListener('input',calcSkladany));
+$$('[data-preset]').forEach(b=>b.onclick=()=>{
+  const p=b.dataset.preset;
+  $('#sr').value = p==='ostroznie'?4:p==='mieszany'?7:9;
+  $$('[data-preset]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  calcSkladany();
+});
+
+/* ═══════════════ 2 · PODATEK BELKI ═══════════════ */
+function calcBelka(){
+  const b0=+$('#b0').value, b1=+$('#b1').value, p=+$('#bp').value/100, st=+$('#bs').value;
+  $('#l-b0').textContent=zl(b0); $('#l-b1').textContent=zl(b1);
+  $('#l-bp').textContent=pc(p*100); $('#l-bs').textContent=zl(st);
+  const koszt=b0*(1+p), przychod=b1*(1-p), prow=b0*p+b1*p;
+  const zysk=przychod-koszt;
+  const odlicz=Math.min(Math.max(0,zysk), st*0.5);
+  const podstawa=Math.max(0,zysk-odlicz), podatek=podstawa*0.19;
+  const netto=zysk-podatek;
+  $('#k-zysk').textContent=zl(zysk); $('#k-prow').textContent=zl(prow);
+  $('#k-pod').textContent=zl(podatek); $('#k-netto').textContent=zl(netto);
+  stackChart('#ch-belka',[
+    {label:'Zysk netto', v:Math.max(0,netto), color:'#1C6A55'},
+    {label:'Podatek', v:podatek, color:'#654A87'},
+    {label:'Prowizje', v:prow, color:'#A03442'}
+  ]);
+  let s;
+  if (zysk<=0) s = `Na tej transakcji jesteś na minusie o <strong>${zl(-zysk)}</strong>. Stratę wykażesz w PIT-38 i odliczysz od zysków w kolejnych pięciu latach — maksymalnie 50% jej wartości w jednym roku.`;
+  else s = `Efektywnie oddajesz <strong>${(podatek/Math.max(1,zysk)*100).toFixed(1).replace('.',',')}%</strong> zysku. Prowizje obniżyły podstawę opodatkowania o <strong>${zl(prow)}</strong>, co samo w sobie oszczędziło ${zl(prow*0.19)} podatku.`;
+  if (st>0 && zysk>0) s += ` Z ${zl(st)} straty z lat ubiegłych wykorzystasz w tym roku najwyżej połowę, czyli ${zl(st*0.5)} — i tyle odjęto tu od podstawy (${zl(odlicz)}).`;
+  $('#n-belka').innerHTML=s;
+}
+$$('#c-belka input').forEach(i=>i.addEventListener('input',calcBelka));
+
+/* ═══════════════ 3 · KOSZTY ETF ═══════════════ */
+function calcKoszty(){
+  const km=+$('#km').value, kl=+$('#kl').value, kr=+$('#kr').value/100,
+        t1=+$('#kt1').value/100, t2=+$('#kt2').value/100, kp=+$('#kp').value;
+  $('#l-km').textContent=zl(km); $('#l-kl').textContent=kl; $('#l-kr').textContent=pc(kr*100);
+  $('#l-kt1').textContent=pc(t1*100); $('#l-kt2').textContent=pc(t2*100); $('#l-kp').textContent=zl(kp);
+  const mr = t => Math.pow(1+Math.max(-0.9,kr-t),1/12)-1;
+  const r0=mr(0), r1=mr(t1), r2=mr(t2);
+  let a=0,b=0,c=0; const A=[0],B=[0],C=[0],L=['0'];
+  for(let y=1;y<=kl;y++){
+    for(let m=0;m<12;m++){ a=a*(1+r1)+Math.max(0,km-kp); b=b*(1+r2)+Math.max(0,km-kp); c=c*(1+r0)+km; }
+    A.push(a);B.push(b);C.push(c);L.push(String(y));
+  }
+  $('#k-etf').textContent=short(a); $('#k-tfi').textContent=short(b);
+  $('#k-roznica').textContent=short(a-b); $('#k-prowsum').textContent=short(kp*12*kl);
+  lineChart('#ch-koszty',[
+    {data:C,color:'#AAB2A4',dash:'5 4',w:1.6},
+    {data:A,color:'#1C6A55',fill:true},
+    {data:B,color:'#B37421',fill:true}
+  ],L);
+  const strata=c-a;
+  $('#n-koszty').innerHTML=`Sam TER <strong>${pc(t1*100)}</strong> kosztuje Cię przez ${kl} lat około <strong>${short(strata)}</strong> względem rynku bez kosztów. Przejście na fundusz z opłatą ${pc(t2*100)} kosztowałoby dodatkowo <strong>${short(a-b)}</strong> — tyle, ile ${(km>0?Math.round((a-b)/km):0)} miesięcznych wpłat.`;
+}
+$$('#c-koszty input').forEach(i=>i.addEventListener('input',calcKoszty));
+
+/* ═══════════════ 4 · OBLIGACJE (emisja VIII 2026) ═══════════════ */
+const OB = {
+  OTS:{n:'OTS',term:0.25,pen:0,cap:true,label:'3 miesiące',first:'2,00% stałe',next:'—',pay:'przy wykupie',
+       rate:()=>2.00},
+  ROR:{n:'ROR',term:1,pen:0.50,cap:false,label:'1 rok',first:'4,00%',next:'stopa NBP',pay:'co miesiąc',
+       rate:(y,i,nbp)=> y===1 ? (4.00+11*nbp)/12 : nbp},
+  DOR:{n:'DOR',term:2,pen:0.70,cap:false,label:'2 lata',first:'4,15%',next:'NBP + 0,15',pay:'co miesiąc',
+       rate:(y,i,nbp)=> y===1 ? (4.15+11*(nbp+0.15))/12 : nbp+0.15},
+  TOS:{n:'TOS',term:3,pen:1.00,cap:true,label:'3 lata',first:'4,40%',next:'4,40% stałe',pay:'przy wykupie',
+       rate:()=>4.40},
+  COI:{n:'COI',term:4,pen:2.00,cap:false,label:'4 lata',first:'4,75%',next:'inflacja + 1,50',pay:'co roku',
+       rate:(y,i)=> y===1 ? 4.75 : i+1.50},
+  EDO:{n:'EDO',term:10,pen:3.00,cap:true,label:'10 lat',first:'5,35%',next:'inflacja + 2,00',pay:'przy wykupie',
+       rate:(y,i)=> y===1 ? 5.35 : i+2.00}
+};
+let obIke=false;
+$('#oIke').onclick=function(){ obIke=!obIke; this.setAttribute('aria-pressed',String(obIke)); calcOblig(); };
+function calcOblig(){
+  const key=$('#ob').value, kw=+$('#okw').value, yr=+$('#oy').value, inf=+$('#oi').value, nbp=+$('#on').value;
+  $('#l-ok').textContent=zl(kw); $('#l-oy').textContent=yr+(yr===1?' rok':(yr<5?' lata':' lat'));
+  $('#l-oi').textContent=pc(inf); $('#l-on').textContent=pc(nbp);
+  const o=OB[key];
+  let bal=kw, gross=0; const S=[kw], L=['0'];
+  for(let y=1;y<=yr;y++){
+    const r=o.rate(y,inf,nbp)/100;
+    const interest = (o.cap?bal:kw)*r;
+    gross += interest;
+    if (o.cap) bal += interest;
+    S.push(o.cap?bal:kw+gross); L.push(String(y));
+  }
+  const early = yr < o.term;
+  let pen = early ? (kw/100)*o.pen : 0;
+  pen = Math.min(pen, gross);
+  const base = Math.max(0, gross-pen);
+  const tax = obIke ? 0 : base*0.19;
+  const netto = kw + base - tax;
+  $('#k-obrutto').textContent=zl(gross); $('#k-okara').textContent=zl(pen);
+  $('#k-obelka').textContent=zl(tax); $('#k-onetto').textContent=zl(netto);
+  lineChart('#ch-oblig',[{data:S,color:'#B37421',fill:true}],L,{});
+  const cagr = yr>0 ? (Math.pow(netto/kw,1/yr)-1)*100 : 0;
+  const realny = cagr - inf;
+  $('#n-oblig').innerHTML =
+    `${o.n} ma termin wykupu <strong>${o.label}</strong>. `+
+    (early ? `Wyjście po ${yr} ${yr===1?'roku':'latach'} oznacza opłatę ${zl2(o.pen)} od każdej obligacji o wartości 100 zł, czyli <strong>${zl(pen)}</strong> — opłata pomniejsza odsetki, nigdy kapitał. `
+           : `Trzymasz do wykupu, więc żadnej opłaty nie ma. `)+
+    `Średnioroczny wynik netto to <strong>${pc(cagr)}</strong>, czyli przy inflacji ${pc(inf)} realnie <strong style="color:${realny>=0?'#1C6A55':'#A03442'}">${realny>=0?'+':''}${pc(realny)}</strong> rocznie.`+
+    (obIke ? ` Dzięki IKE nie płacisz podatku Belki — zostaje o ${zl(base*0.19)} więcej.` : ` W ramach IKE ten sam zakup dałby o <strong>${zl(base*0.19)}</strong> więcej.`);
+}
+$('#ob').addEventListener('change',calcOblig);
+$$('#c-oblig input').forEach(i=>i.addEventListener('input',calcOblig));
+(function obTable(){
+  const rows = Object.values(OB).map(o=>
+    `<tr><td><strong>${o.n}</strong></td><td>${o.label}</td><td class="num">${o.first}</td><td>${o.next}</td><td>${o.pay}</td><td class="num">${o.pen? plnFmt2.format(o.pen)+NB+'zł':'brak opłaty'}</td></tr>`).join('');
+  const extra = `<tr><td><strong>ROS</strong> · rodzinne</td><td>6 lat</td><td class="num">wg listu emisyjnego</td><td>inflacja + 2,00</td><td>przy wykupie</td><td class="num">2,00${NB}zł</td></tr>
+  <tr><td><strong>ROD</strong> · rodzinne</td><td>12 lat</td><td class="num">wg listu emisyjnego</td><td>inflacja + 2,50</td><td>przy wykupie</td><td class="num">3,00${NB}zł</td></tr>`;
+  $('#obTable').innerHTML = rows + extra;
+})();
+
+/* ═══════════════ 5 · LOKATA A INFLACJA ═══════════════ */
+function calcBank(){
+  const k=+$('#lk').value, r=+$('#lr').value/100, m=+$('#lm').value, inf=+$('#li').value/100;
+  $('#l-lk').textContent=zl(k); $('#l-lr').textContent=pc(r*100); $('#l-lm').textContent=m; $('#l-li').textContent=pc(inf*100);
+  const brutto = k*(Math.pow(1+r/12,m)-1);
+  const belka = brutto*0.19, netto = brutto-belka;
+  const lata = m/12;
+  const real = (k+netto)/Math.pow(1+inf,lata) - k;
+  $('#k-lbrutto').textContent=zl2(brutto); $('#k-lbelka').textContent=zl2(belka);
+  $('#k-lnetto').textContent=zl2(netto); $('#k-lreal').textContent=(real>=0?'+':'')+zl2(real);
+  $('#k-lprog').textContent=pc(inf*100/0.81);
+  barChart('#ch-bank',[
+    {label:'Odsetki brutto', v:brutto, color:'#B37421'},
+    {label:'Podatek Belki', v:belka, color:'#654A87'},
+    {label:'Odsetki netto', v:netto, color:'#1C6A55'},
+    {label:'Realnie po inflacji', v:Math.abs(real), color: real>=0?'#2E9377':'#A03442', text:(real>=0?'+':'−')+zl2(Math.abs(real))}
+  ]);
+  $('#n-bank').innerHTML = real>=0
+    ? `Ta lokata realnie zarabia. Po podatku i inflacji Twoje ${zl(k)} ma siłę nabywczą większą o <strong>${zl2(real)}</strong>.`
+    : `Ta lokata realnie <strong>traci</strong>: po podatku i inflacji siła nabywcza spada o <strong>${zl2(-real)}</strong>. Nominalnie na wyciągu widzisz plus, w sklepie — minus.`;
+}
+$$('#c-bank input').forEach(i=>i.addEventListener('input',calcBank));
+
+/* ═══════════════ 6 · IKE / IKZE / ZWYKŁE ═══════════════ */
+function calcEmer(){
+  const w=+$('#em').value, l=+$('#el').value, r=+$('#er').value/100, pit=+$('#ep').value/100, rein=$('#ez').value==='1';
+  $('#l-em').textContent=zl(w); $('#l-el').textContent=l; $('#l-er').textContent=pc(r*100);
+  let fv=0, side=0, sumW=0, sumR=0;
+  const A=[0],B=[0],C=[0],L=['0'];
+  for(let y=1;y<=l;y++){
+    fv=(fv+w)*(1+r); sumW+=w;
+    const zwrot = w*pit; sumR += rein?zwrot:0;
+    side = rein ? (side+zwrot)*(1+r) : 0;
+    const zwykleN = fv - 0.19*Math.max(0,fv-sumW);
+    const sideN = side - 0.19*Math.max(0,side-sumR);
+    A.push(zwykleN); B.push(fv); C.push(fv*0.90 + sideN); L.push(String(y));
+  }
+  const zwykle=A[A.length-1], ike=B[B.length-1], ikze=C[C.length-1];
+  $('#k-zwykle').textContent=short(zwykle); $('#k-ike').textContent=short(ike); $('#k-ikze').textContent=short(ikze);
+  const best=Math.max(ike,ikze);
+  $('#k-zysk-pokr').textContent='+'+short(best-zwykle);
+  lineChart('#ch-emer',[
+    {data:A,color:'#AAB2A4',w:1.9},
+    {data:B,color:'#1C6A55',fill:true},
+    {data:C,color:'#654A87',w:2.2}
+  ],L);
+  let s = `Na zwykłym rachunku fiskus zabiera na koniec <strong>${short(ike-zwykle)}</strong>. `;
+  s += ike>=ikze
+    ? `Przy tych założeniach wygrywa <strong>IKE</strong> o ${short(ike-ikze)} — bo 10% ryczałtu z IKZE liczy się od całej wypłaty, a nie tylko od zysku.`
+    : `Przy tych założeniach wygrywa <strong>IKZE</strong> o ${short(ikze-ike)} — decyduje ulga w PIT ${pc(pit*100)}${rein?', którą co roku reinwestujesz':'. A gdybyś zwrot reinwestował, przewaga byłaby jeszcze większa'}.`;
+  if (w>28260) s += ` Uwaga: ${zl(w)} przekracza limit IKE na 2026 r. (28 260 zł).`;
+  else if (w>16956) s += ` Uwaga: ${zl(w)} mieści się w IKE, ale przekracza każdy limit IKZE.`;
+  else if (w>11304) s += ` Uwaga: ta kwota mieści się w limicie IKZE tylko przy działalności gospodarczej (16 956 zł).`;
+  $('#n-emer').innerHTML=s;
+}
+$$('#c-emer input, #c-emer select').forEach(i=>i.addEventListener('input',calcEmer));
+
+/* ═══════════════ 7 · PODUSZKA I WYPŁATY ═══════════════ */
+function calcPodusz(){
+  const k=+$('#pk').value, ms=+$('#ps').value, w=+$('#pw').value, r=+$('#pr').value/100;
+  $('#l-pk').textContent=zl(k); $('#l-pw').textContent=zl(w); $('#l-pr').textContent=pc(r*100);
+  const cel=k*ms, mies=w*r/12, net=mies*0.81, potrzeba=k*12/(r*0.81);
+  $('#k-pod-cel').textContent=zl(cel); $('#k-pod-mies').textContent=zl(mies);
+  $('#k-pod-net').textContent=zl(net); $('#k-pod-fi').textContent=short(potrzeba);
+  barChart('#ch-podusz',[
+    {label:'Koszty życia / mies.', v:k, color:'#A03442'},
+    {label:'Wypłata brutto / mies.', v:mies, color:'#B37421'},
+    {label:'Wypłata po Belce', v:net, color:'#1C6A55'}
+  ]);
+  const pokrycie = k>0 ? net/k*100 : 0;
+  $('#n-podusz').innerHTML = `Kapitał ${short(w)} przy stopie wypłaty ${pc(r*100)} pokrywa <strong>${pokrycie.toFixed(0)}%</strong> Twoich kosztów życia. Pełne pokrycie wymagałoby około <strong>${short(potrzeba)}</strong>. Podatek policzono w wariancie najostrożniejszym — jakby cała wypłata była zyskiem; w praktyce część to zwrot własnego kapitału, więc realnie zapłacisz mniej.`;
+}
+$$('#c-podusz input, #c-podusz select').forEach(i=>i.addEventListener('input',calcPodusz));
+
+/* ═══════════════ QUIZ ═══════════════ */
+const QUIZ=[
+ {q:"Kupujesz ETF na rachunku maklerskim i sprzedajesz go z zyskiem. Kto rozlicza podatek?",
+  o:["Broker pobiera 19% automatycznie","Ty — w PIT-38 do 30 kwietnia","Nikt, ETF-y są zwolnione","Zależy od waluty"],a:1,
+  e:"Broker wysyła tylko PIT-8C z danymi. Deklarację składasz i podatek płacisz samodzielnie."},
+ {q:"Fundusz ma TER 2%, a rynek rośnie o 7% rocznie. Ile realnie pracuje Twój kapitał?",
+  o:["7% — opłatę płacisz osobno","Około 5%","6,86% — 2% liczy się od zysku","Zależy od wyniku funduszu"],a:1,
+  e:"TER liczy się od całych aktywów, nie od zysku. Zostaje więc mniej więcej 5% — i płacisz tę opłatę także w latach spadków."},
+ {q:"Co dzieje się z kursem akcji w dniu ustalenia prawa do dywidendy?",
+  o:["Rośnie o wartość dywidendy","Spada mniej więcej o wartość dywidendy","Nie zmienia się","Zależy od nastrojów"],a:1,
+  e:"Dywidenda to gotówka wypływająca ze spółki. Wartość firmy maleje o tę kwotę, więc kurs odpowiednio się obniża."},
+ {q:"Obligacja EDO w drugim roku: inflacja wynosi 3%, marża 2 pkt proc. Jakie oprocentowanie?",
+  o:["2%","3%","5%","6%"],a:2,
+  e:"Wskaźnik inflacji plus marża, czyli 3% + 2% = 5%. Od tego jeszcze 19% podatku Belki, chyba że kupujesz w IKE."},
+ {q:"Wypłacasz środki z IKZE po 65. roku życia. Od czego liczone jest 10%?",
+  o:["Tylko od zysku","Od całej wypłacanej kwoty","Od wpłat, bez zysku","Od nadwyżki ponad limit"],a:1,
+  e:"To ryczałt od całości. Dlatego korzyść z IKZE zależy głównie od tego, ile odzyskałeś w PIT przy wpłatach."},
+ {q:"Inflacja 3%, lokata 3% brutto. Czy chronisz siłę nabywczą?",
+  o:["Tak, dokładnie","Nie — po Belce zostaje 2,43%","Tak, z niewielką nadwyżką","Zależy od banku"],a:1,
+  e:"Podatek zabiera 19% odsetek. Aby wyjść na zero przy 3% inflacji, lokata musi dawać około 3,70% brutto."},
+ {q:"Poniosłeś 10 000 zł straty na akcjach. Ile odliczysz w jednym roku podatkowym?",
+  o:["Całość, 10 000 zł","Maksymalnie 5 000 zł","Nic, straty przepadają","Maksymalnie 2 000 zł"],a:1,
+  e:"Stratę rozlicza się przez 5 kolejnych lat, ale w jednym roku najwyżej 50% jej wartości."},
+ {q:"Które konto od 2027 r. ma nie mieć limitu wpłat ani granicy wieku?",
+  o:["IKE","IKZE","OKI","PPE"],a:2,
+  e:"OKI nie ogranicza wpłat — ogranicza kwotę wolną. Powyżej 100 000 zł aktywów pojawia się podatek od wartości, także w roku ze stratą."}
+];
+let qi=0, qDone=0;
+function renderQ(){
+  const q=QUIZ[qi];
+  $('#qcount').textContent=`Pytanie ${qi+1} z ${QUIZ.length}`;
+  $('#qtext').textContent=q.q;
+  $('#qfill').style.width=(qi/QUIZ.length*100)+'%';
+  const box=$('#qopts'); box.innerHTML='';
+  q.o.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='qopt'; b.textContent=o;
+    b.onclick=()=>{
+      $$('#qopts .qopt').forEach((x,j)=>{ x.disabled=true; if(j===q.a) x.classList.add('good'); });
+      if(i!==q.a) b.classList.add('bad'); else qDone++;
+      $('#qexp').textContent=q.e; $('#qexp').classList.add('show');
+      $('#qnext').style.display='inline-block';
+      $('#qnext').textContent = qi===QUIZ.length-1 ? 'Zobacz wynik' : 'Dalej';
+    };
+    box.appendChild(b);
+  });
+  $('#qexp').classList.remove('show'); $('#qnext').style.display='none';
+}
+const QSHELL = `<div class="eyebrow" id="qcount"></div>
+  <h3 id="qtext" style="font-size:1.45rem;margin-top:.5rem"></h3>
+  <div class="qopts" id="qopts"></div>
+  <div class="qexp" id="qexp"></div>
+  <div style="margin-top:1.2rem"><button class="btn" id="qnext" style="display:none">Dalej</button></div>`;
+function bindNext(){ $('#qnext').onclick = advance; }
+function advance(){
+  if (qi < QUIZ.length-1){ qi++; renderQ(); return; }
+  $('#qfill').style.width='100%';
+  const pctv = Math.round(qDone/QUIZ.length*100);
+  const komentarz = pctv>=88 ? 'Materiał opanowany — możesz uczyć innych.'
+    : pctv>=63 ? 'Solidnie. Wróć do mapy i przejrzyj gałęzie, w których się pomyliłeś.'
+    : 'Warto przejść mapę jeszcze raz, gałąź po gałęzi, i pobawić się kalkulatorami.';
+  $('#qzone').innerHTML = `<div class="eyebrow">Wynik</div>
+    <h3 style="font-size:2.6rem;margin:.5rem 0">${qDone} / ${QUIZ.length}</h3>
+    <p class="lead">${komentarz}</p>
+    <button class="btn" id="qagain">Zacznij od nowa</button>`;
+  $('#qagain').onclick = ()=>{
+    qi=0; qDone=0;
+    $('#qzone').innerHTML = QSHELL;
+    bindNext(); renderQ();
+  };
+}
+bindNext(); renderQ();
+
+/* ═══════════════ SŁOWNIK ═══════════════ */
+const GLOSS=[
+ ["Aktywa","Wszystko, co ma wartość i może przynosić dochód: akcje, obligacje, nieruchomości, gotówka."],
+ ["Belka","Potoczna nazwa 19-procentowego zryczałtowanego podatku od dochodów kapitałowych."],
+ ["BFG","Bankowy Fundusz Gwarancyjny — chroni depozyty do równowartości 100 000 euro na osobę w jednym banku."],
+ ["Blue chip","Duża, dojrzała spółka o stabilnej pozycji. Na GPW zwykle utożsamiana ze składem WIG20."],
+ ["C/Z (P/E)","Cena akcji podzielona przez zysk na akcję. Ile płacisz za złotówkę rocznego zysku spółki."],
+ ["CAGR","Średnioroczna stopa wzrostu — wygładzony wynik inwestycji w skali roku."],
+ ["Catalyst","Rynek obligacji przy GPW, głównie korporacyjnych i komunalnych."],
+ ["Dywersyfikacja","Rozłożenie kapitału na wiele aktywów, by porażka jednego nie przesądziła o całości."],
+ ["Dywidenda","Część zysku spółki wypłacana akcjonariuszom. Opodatkowana 19% u źródła."],
+ ["ETF","Fundusz notowany na giełdzie, odwzorowujący indeks. Kupujesz go jak akcję."],
+ ["IKE","Indywidualne Konto Emerytalne. Zysk bez podatku Belki po spełnieniu warunków wieku i stażu wpłat."],
+ ["IKZE","Indywidualne Konto Zabezpieczenia Emerytalnego. Wpłatę odliczasz od PIT, przy wypłacie 10% ryczałtu."],
+ ["Indeks","Umowny koszyk spółek mierzący zachowanie rynku, np. WIG20, S&P 500, MSCI World."],
+ ["Inflacja","Wzrost ogólnego poziomu cen, mierzony wskaźnikiem CPI publikowanym przez GUS."],
+ ["Kapitalizacja odsetek","Doliczenie odsetek do kapitału, dzięki czemu kolejne odsetki liczą się od większej kwoty."],
+ ["OKI","Osobiste Konto Inwestycyjne — od 2027 r. kwota wolna zamiast Belki, a powyżej niej podatek od wartości aktywów."],
+ ["PIT-8C","Informacja od biura maklerskiego o przychodach i kosztach, podstawa do wypełnienia PIT-38."],
+ ["PIT-38","Zeznanie roczne dla dochodów kapitałowych, składane do 30 kwietnia."],
+ ["Płynność","Łatwość kupna lub sprzedaży bez wpływania na cenę. Niska płynność oznacza szeroki spread."],
+ ["PPK","Pracownicze Plany Kapitałowe. Dokłada pracodawca i państwo, wypłata bez podatku po 60. roku życia."],
+ ["Prospekt / list emisyjny","Dokument z warunkami emisji: oprocentowanie, terminy, opłaty. Warto go czytać przed zakupem."],
+ ["Spread","Różnica między najlepszą ofertą kupna a sprzedaży. Ukryty koszt każdej transakcji."],
+ ["Stopa referencyjna NBP","Główna stopa banku centralnego. Wyznacza oprocentowanie ROR i DOR oraz wpływa na lokaty."],
+ ["TER","Total Expense Ratio — roczna opłata funduszu liczona od wartości aktywów."],
+ ["W-8BEN","Formularz obniżający podatek u źródła od dywidend z USA z 30% do 15%."],
+ ["WIBOR / WIRON","Stawki referencyjne rynku międzybankowego, używane m.in. w obligacjach zmiennokuponowych i kredytach."],
+ ["Wolumen","Liczba papierów, które zmieniły właściciela w danym okresie. Miara zainteresowania rynku."],
+ ["Zlecenie z limitem","Zlecenie z ceną maksymalną (kupno) lub minimalną (sprzedaż). Bezpieczniejsze niż PKC."]
+];
+(function gloss(){
+  const box=$('#gloss');
+  box.innerHTML = GLOSS.map(g=>`<div class="gterm" data-k="${(g[0]+' '+g[1]).toLowerCase()}"><b>${g[0]}</b><p>${g[1]}</p></div>`).join('');
+  $('#gsearch').addEventListener('input', e=>{
+    const q=e.target.value.trim().toLowerCase();
+    $$('.gterm').forEach(t=>t.classList.toggle('hide', q && !t.dataset.k.includes(q)));
+  });
+})();
+
+/* ═══════════════ NAWIGACJA — podświetlenie ═══════════════ */
+(function spy(){
+  const links=$$('#nav a');
+  const secs=links.map(a=>$(a.getAttribute('href'))).filter(Boolean);
+  const io=new IntersectionObserver(es=>{
+    es.forEach(en=>{ if(en.isIntersecting){
+      links.forEach(a=>a.classList.toggle('on', a.getAttribute('href')==='#'+en.target.id));
+    }});
+  },{rootMargin:'-45% 0px -50% 0px'});
+  secs.forEach(s=>io.observe(s));
+})();
+
+/* ═══════════════ START ═══════════════ */
+calcSkladany(); calcBelka(); calcKoszty(); calcOblig(); calcBank(); calcEmer(); calcPodusz();
+</script>
+</body>
+</html>
